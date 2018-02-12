@@ -4,14 +4,14 @@ import numpy as np
 import cv2
 import os
 import matplotlib.pyplot as plt
-
+import utilities
 
 def batch_preprocess(dir_path, data_file, img_size=(67, 320), measurement_range=None):
-    samples = pd.read_csv(os.path.join(dir_path, data_file))
+    samples = utilities.get_dataset_from_folder(dir_path)
 
     measurement_index = measurement_range[0] if measurement_range else 0
     start_index = measurement_index
-    max_measurement_index = measurement_range[1] if measurement_range else len(samples)
+    max_measurement_index = measurement_range[1] if measurement_range[1] else len(samples)
     assert (measurement_index < max_measurement_index)
 
     num_measurements = max_measurement_index - measurement_index
