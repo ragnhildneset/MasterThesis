@@ -41,7 +41,9 @@ def read_and_preprocess_data():
             show_image((2, 2, 2), "Flipped", cv2.cvtColor(cv2.convertScaleAbs(X_train[aug_sample_index + 1] + 0.5, alpha=255), cv2.COLOR_BGR2RGB))
             plt.show()
             plt.close()
-    print(Y_train)
+
+    preprocessed_dataset = {'features': X_train, 'labels': Y_train}
+    return preprocessed_dataset
 
 
 def normalize_color(image_matrix):
