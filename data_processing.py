@@ -3,6 +3,7 @@ import numpy as np
 
 import cv2
 import os
+import matplotlib.pyplot as plt
 
 dir_path = "vel_test2/Original/"
 data_file = "labels.csv"
@@ -34,7 +35,15 @@ def read_and_preprocess_data():
         Y_train[aug_sample_index + 1, 0] = samples.iloc[sample_index, 0]  # Speed
         Y_train[aug_sample_index + 1, 1] = samples.iloc[sample_index, 1] * -1  # Flipped angle
 
-    print(X_train)
+        if False:
+            plt.figure(figsize=(15, 5))
+            show_image((2, 2, 1), "Normal", cv2.cvtColor(cv2.convertScaleAbs(X_train[aug_sample_index] + 0.5, alpha=255), cv2.COLOR_BGR2RGB))
+            show_image((2, 2, 2), "Flipped", cv2.cvtColor(cv2.convertScaleAbs(X_train[aug_sample_index + 1] + 0.5, alpha=255), cv2.COLOR_BGR2RGB))
+            plt.show()
+            plt.close()
+
+    preprocessed_dataset = {'features': X_train, 'labels': Y_train}
+    return preprocessed_dataset
 
 
 def normalize_color(image_matrix):
@@ -43,5 +52,14 @@ def normalize_color(image_matrix):
 
 def reduce_resolution(image, width, height):
     return cv2.resize(image, (width, height))
+
+def show_image(location, title, img, width=2, open_new_window=False):
+    if open_new_window:
+        plt.figure(figsize=(width, 1))
+    plt.subplot(*location)
+    plt.title(title, fontsize=8)
+    plt.axis('off')
+    plt.imshow(img)
+
 
 read_and_preprocess_data()
