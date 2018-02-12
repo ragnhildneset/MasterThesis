@@ -20,7 +20,7 @@ if __name__ == "__main__":
         utilities.randomize_dataset_csv(dataset_log_path)
 
     measurement_index = 0  # index of measurements in dataset
-    dataset_log = utilities.get_dataset_from_csv(args.dataset_directory)
+    dataset_log = utilities.get_dataset_from_folder(args.dataset_directory)
     dataset_size = dataset_log.shape[0]
     # use first 20% of dataset for validation
     validation_batch_size = int(0.2 * dataset_size)

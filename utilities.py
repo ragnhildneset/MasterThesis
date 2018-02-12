@@ -21,3 +21,9 @@ def get_dataset_from_csv(image_input_dir):
     print("Reading from CSV log file", log_path)
     driving_log = pd.read_csv(log_path, header=None)
     return driving_log
+
+# get dataset from folder with multiple csv files
+def get_dataset_from_folder(dataset_dir):
+    all_files = glob.glob(os.path.join(dataset_dir, "*.csv"))
+    df_from_each_file = (pd.read_csv(f) for f in all_files)
+    return pd.concat(df_from_each_file, ignore_index=True)
