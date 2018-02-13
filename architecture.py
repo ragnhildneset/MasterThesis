@@ -13,6 +13,6 @@ def model():
     model.add(Dense(100, activation="relu"))
     model.add(Dense(50, activation="relu"))
     model.add(Dense(10, activation="relu"))
-    model.add(Dense(1))
+    model.add(Dense(2))
     model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
     return model
