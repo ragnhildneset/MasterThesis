@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import architecture
 import utilities
 import argparse
