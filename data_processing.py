@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import utilities
 
-def batch_preprocess(dir_path, data_file, img_size=(67, 320), measurement_range=None):
+def batch_preprocess(dir_path, img_size=(67, 320), measurement_range=None):
     samples = utilities.get_dataset_from_folder(dir_path)
 
     measurement_index = measurement_range[0] if measurement_range else 0
