@@ -34,7 +34,7 @@ if __name__ == "__main__":
     Y_valid = validation_set['labels']
 
     measurement_index = validation_batch_size  # update measurement index to the end of the validation set
-    model = architecture.model()  # initialize neural network model that will be iteratively trained in batches
+    model = architecture.bojarski_model()  # initialize neural network model that will be iteratively trained in batches
 
 
     tensorboard = TensorBoard(log_dir=args.tensorboard_dir, histogram_freq=0,

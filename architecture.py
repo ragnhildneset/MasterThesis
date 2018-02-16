@@ -2,7 +2,7 @@ from keras.models import Sequential
 from keras.layers import Flatten, Dense, Conv2D
 
 
-def model():
+def bojarski_model():
     model = Sequential()
     model.add(Conv2D(24, (5, 5), strides=(2, 2), activation="relu", input_shape=(67, 320, 3)))
     model.add(Conv2D(36, (5, 5), strides=(2, 2), activation="relu"))
