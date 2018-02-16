@@ -19,8 +19,7 @@ RUN pip --no-cache-dir install \
 
 # install your app
 RUN mkdir -p /ai
-COPY . /ai
-RUN chmod +x /ai/model.py
 
 WORKDIR /ai
+
 CMD ["/bin/bash"]
