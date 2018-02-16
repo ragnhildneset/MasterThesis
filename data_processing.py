@@ -21,7 +21,6 @@ def batch_preprocess(dir_path, data_file, img_size=(67, 320), measurement_range=
     X_train = np.zeros((num_aug_measurements, img_size[0], img_size[1], 3))
 
     while measurement_index < max_measurement_index:
-        print(measurement_range)
         aug_sample_index = (measurement_index - start_index) * 2
         image_file = samples.iloc[measurement_index, 2]
 
