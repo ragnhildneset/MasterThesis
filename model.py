@@ -7,8 +7,6 @@ import data_processing
 
 from keras.callbacks import TensorBoard
 
-LABEL_FILE_NAME = 'labels.csv'
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a neural network to autonomously drive a virtual car. Example syntax:\n\npython model.py -d udacity_dataset -m model.h5')
     parser.add_argument('--dataset-directory', '-d', dest='dataset_directory', type=str, required=True, help='Required string: Directory containing driving log and images.')
@@ -30,7 +28,7 @@ if __name__ == "__main__":
     # use first 20% of dataset for validation
     validation_batch_size = int(0.2 * dataset_size)
 
-    validation_set = data_processing.batch_preprocess(args.dataset_directory, LABEL_FILE_NAME, measurement_range=(measurement_index, validation_batch_size))
+    validation_set = data_processing.batch_preprocess(args.dataset_directory, measurement_range=(measurement_index, validation_batch_size))
 
     X_valid = validation_set['features']
     Y_valid = validation_set['labels']
@@ -46,10 +44,10 @@ if __name__ == "__main__":
         end_index = measurement_index + args.cpu_batch_size
         if end_index < dataset_size:
             print("Pre-processing from index", measurement_index, "to index", end_index)
-            preprocessed_batch = data_processing.batch_preprocess(args.dataset_directory, LABEL_FILE_NAME, measurement_range=(measurement_index, end_index))
+            preprocessed_batch = data_processing.batch_preprocess(args.dataset_directory, measurement_range=(measurement_index, end_index))
         else:
             print("Pre-processing from index", measurement_index, "to index", dataset_size)
-            preprocessed_batch = data_processing.batch_preprocess(args.dataset_directory, LABEL_FILE_NAME, measurement_range=(measurement_index, None))
+            preprocessed_batch = data_processing.batch_preprocess(args.dataset_directory, measurement_range=(measurement_index, None))
 
         X_batch = preprocessed_batch['features']
         Y_batch = preprocessed_batch['labels']
