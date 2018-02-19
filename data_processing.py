@@ -6,6 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import utilities
 
+
 def batch_preprocess(dir_path, img_size=(67, 320), measurement_range=None):
     samples = utilities.get_dataset_from_folder(dir_path)
 
@@ -43,8 +44,8 @@ def batch_preprocess(dir_path, img_size=(67, 320), measurement_range=None):
 
         if False:
             plt.figure(figsize=(15, 5))
-            show_image((2, 2, 1), "Normal", cv2.cvtColor(cv2.convertScaleAbs(X_train[aug_sample_index] + 0.5, alpha=255), cv2.COLOR_BGR2RGB))
-            show_image((2, 2, 2), "Flipped", cv2.cvtColor(cv2.convertScaleAbs(X_train[aug_sample_index + 1] + 0.5, alpha=255), cv2.COLOR_BGR2RGB))
+            show_image((2, 2, 1), "Normal", X_train[aug_sample_index])
+            show_image((2, 2, 2), "Flipped", X_train[aug_sample_index + 1])
             plt.show()
             plt.close()
 
@@ -54,6 +55,10 @@ def batch_preprocess(dir_path, img_size=(67, 320), measurement_range=None):
 
 def normalize_color(image_matrix):
     return image_matrix / 255 - 0.5
+
+
+def un_normalize_color(image_matrix):
+    return cv2.convertScaleAbs(image_matrix + 0.5, alpha=255)
 
 
 def reduce_resolution(image, height, width):
@@ -66,4 +71,4 @@ def show_image(location, title, img, width=2, open_new_window=False):
     plt.subplot(*location)
     plt.title(title, fontsize=8)
     plt.axis('off')
-    plt.imshow(img)
+    plt.imshow(cv2.cvtColor(un_normalize_color(img), cv2.COLOR_BGR2RGB))
