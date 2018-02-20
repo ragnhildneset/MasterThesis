@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 import utilities
 
 
-def batch_generator(dataset_path, batch_size, img_size=(67, 320)):
-    samples = utilities.get_dataset_from_folder(dataset_path)
+def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320)):
     images = np.zeros((batch_size, img_size[0], img_size[1], 3))
     steers = np.zeros((batch_size, 2))
 
@@ -21,7 +20,7 @@ def batch_generator(dataset_path, batch_size, img_size=(67, 320)):
             image_path = samples.iloc[index, 2]
             image = load_image(dataset_path, image_path)
 
-            images[i] = preprocess(image)
+            images[i] = preprocess(image, img_size)
             steers[i] = [speed, angle]
             i += 1
             if i == batch_size:
