@@ -7,6 +7,38 @@ import matplotlib.pyplot as plt
 import utilities
 
 
+def batch_generator(dataset_path, batch_size, img_size=(67, 320)):
+    samples = utilities.get_dataset_from_folder(dataset_path)
+    images = np.zeros((batch_size, img_size[0], img_size[1], 3))
+    steers = np.zeros((batch_size, 2))
+
+    while True:
+        i = 0
+        for index in np.random.permutation(samples.shape[0]):
+            speed = samples.iloc[index, 0]
+            angle = samples.iloc[index, 1]
+
+            image_path = samples.iloc[index, 2]
+            image = load_image(dataset_path, image_path)
+
+            images[i] = preprocess(image)
+            steers[i] = [speed, angle]
+            i += 1
+            if i == batch_size:
+                break
+        yield images, steers
+
+
+def load_image(dataset_path, image_file):
+    return cv2.imread(os.path.join(dataset_path, image_file))
+
+
+def preprocess(image, img_size):
+    reduced_image = reduce_resolution(image, img_size[0], img_size[1])
+    normalized_image = normalize_color(reduced_image)
+    return normalized_image
+
+
 def batch_preprocess(dir_path, img_size=(67, 320), measurement_range=None):
     samples = utilities.get_dataset_from_folder(dir_path)
 
