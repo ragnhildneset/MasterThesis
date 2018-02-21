@@ -27,3 +27,9 @@ def get_dataset_from_folder(dataset_dir):
     all_files = glob.glob(os.path.join(dataset_dir, "*.csv"))
     df_from_each_file = (pd.read_csv(f) for f in all_files)
     return pd.concat(df_from_each_file, ignore_index=True)
+
+def save_model(model, model_dir, model_name):
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+    model.save(os.path.join(model_dir, model_name))
+

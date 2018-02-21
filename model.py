@@ -23,7 +23,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     dataset_log = utilities.get_dataset_from_folder(args.dataset_directory)
-
     train, valid = train_test_split(dataset_log, test_size=args.test_size, random_state=0)
 
     model = architecture.bojarski_model()  # initialize neural network model that will be iteratively trained in batches
@@ -40,6 +39,6 @@ if __name__ == "__main__":
         validation_steps=(len(train) // args.gpu_batch_size)
     )
 
-    if not os.path.exists(MODEL_DIR):
-        os.makedirs(MODEL_DIR)
-    model.save(os.path.join(MODEL_DIR, args.model_name))
+    utilities.save_model(model, MODEL_DIR, args.model_name)
+
+
