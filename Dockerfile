@@ -15,9 +15,7 @@ RUN apt-get update -qq \
 RUN pip --no-cache-dir install \
     opencv-python \
     seaborn \
-    scikit-learn \
-    keras \
-    keras-vis
+    keras
 
 # install your app
 RUN mkdir -p /ai
