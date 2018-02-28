@@ -39,6 +39,7 @@ if __name__ == "__main__":
         validation_steps=(len(train) // args.gpu_batch_size)
     )
 
-    utilities.save_model(model, MODEL_DIR, args.model_name)
+    utilities.make_folder(MODEL_DIR)
+    model.save(os.path.join(MODEL_DIR, args.model_name))
 
 
