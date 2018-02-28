@@ -28,6 +28,25 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320)):
         yield images, steers
 
 
+def random_batch(samples, dataset_path, batch_size, img_size=(67, 320)):
+    images = np.zeros((batch_size, img_size[0], img_size[1], 3))
+    steers = np.zeros((batch_size, 2))
+    image_names = []
+
+    for i, index in enumerate(np.random.choice(samples.shape[0], batch_size)):
+        speed = samples.iloc[index, 0]
+        angle = samples.iloc[index, 1]
+        image_name = samples.iloc[index, 2]
+
+        image_path = samples.iloc[index, 2]
+        image = load_image(dataset_path, image_path)
+
+        images[i] = preprocess(image, img_size)
+        steers[i] = [speed, angle]
+        image_names.append(image_name)
+    return {"images": images, "steers": steers, "image_names": image_names}
+
+
 def flip(image, angle):
     image = cv2.flip(image, flipCode=1)
     angle = angle * -1
