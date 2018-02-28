@@ -8,12 +8,7 @@ import utilities
 import os
 
 
-def heat_map(num_images, model_path, data_dir, layer, figure_folder):
-    model = load_model(model_path)
-
-    dataset_log = utilities.get_dataset_from_folder(data_dir)
-    sample = data_processing.random_batch(dataset_log, data_dir, num_images)
-
+def make_and_save_heat_maps(model, sample, layer, figure_folder):
     utilities.make_folder(figure_folder)
 
     plt.figure()
