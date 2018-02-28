@@ -39,3 +39,7 @@ def displayCV2(img):
     cv2.imshow('image', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+def make_folder(model_dir):
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
