@@ -43,3 +43,6 @@ def displayCV2(img):
 def make_folder(model_dir):
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
+
+def load_image(dataset_path, image_file):
+    return cv2.imread(os.path.join(dataset_path, image_file))

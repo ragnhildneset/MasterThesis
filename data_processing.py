@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-import os
+import utilities
 
 
 def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320)):
@@ -14,7 +14,7 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320)):
             angle = samples.iloc[index, 1]
 
             image_path = samples.iloc[index, 2]
-            image = load_image(dataset_path, image_path)
+            image = utilities.load_image(dataset_path, image_path)
 
             if np.random.rand() < 0.6:
                 image, angle = flip(image, angle)
@@ -40,7 +40,7 @@ def random_batch(samples, dataset_path, batch_size, img_size=(67, 320), random_s
         image_name = samples.iloc[index, 2]
 
         image_path = samples.iloc[index, 2]
-        image = load_image(dataset_path, image_path)
+        image = utilities.load_image(dataset_path, image_path)
 
         images[i] = preprocess(image, img_size)
         steers[i] = [speed, angle]
@@ -54,10 +54,6 @@ def flip(image, angle):
     image = cv2.flip(image, flipCode=1)
     angle = angle * -1
     return image, angle
-
-
-def load_image(dataset_path, image_file):
-    return cv2.imread(os.path.join(dataset_path, image_file))
 
 
 def preprocess(image, img_size):
