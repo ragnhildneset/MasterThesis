@@ -32,6 +32,7 @@ if __name__ == "__main__":
     parser.add_argument('--tensorboard-dir', '-t', dest='tensorboard_dir', type=str, required=False, default='output/logs', help='The directory in which the tensorboard logs should be saved.')
     parser.add_argument('--test-size', '-ts', dest='test_size', type=int, required=False, default=0.2, help='The fraction of samples used for testing.')
     parser.add_argument('--visualization-size', '-vs', dest='vis_size', type=int, required=False, default=50, help='The number of images to be selected for visualisation.')
+    parser.add_argument('--epochs', '-e', dest='epochs', type=int, required=False, default=15, help='The number of images to be selected for visualisation.')
     args = parser.parse_args()
 
     dataset_log = utilities.get_dataset_from_folder(args.dataset_directory)
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     model.fit_generator(
         generator=data_processing.batch_generator(train, args.dataset_directory, args.gpu_batch_size),
         steps_per_epoch=len(train) // args.gpu_batch_size,
-        epochs=15,
+        epochs=args.epochs,
         callbacks=[tensorboard],
         validation_data=data_processing.batch_generator(valid, args.dataset_directory, args.gpu_batch_size),
         validation_steps=(len(train) // args.gpu_batch_size)
