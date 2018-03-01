@@ -40,16 +40,29 @@ def process_img_for_angle_visualization(img, angle, pred_angle, frame):
     return img
 
 
-def make_and_save_heat_maps(model, sample, layer, figure_folder):
-    utilities.make_folder(figure_folder)
+def make_and_save_angle_visualization(model, samples, folder):
+    predictions = model.predict(samples["images"])
+    utilities.make_folder(folder)
+    for i, image in enumerate(samples["images"]):
+        angle = samples["steers"][i, 1]
+        pred_angle = predictions[i, 1]
+        display_image = data_processing.un_normalize_color(image)
+
+        visualized_image = process_img_for_angle_visualization(display_image, angle, pred_angle, i)
+
+        figure_name = samples["image_names"][i].replace("/", "_")
+        cv2.imwrite(os.path.join(folder, figure_name), visualized_image)
+
+
+def make_and_save_heat_maps(model, samples, layer, folder):
+    utilities.make_folder(folder)
 
     plt.figure()
-    for i in range(sample["images"].shape[0]):
-        image = sample["images"][i]
+    for i, image in enumerate(samples["images"]):
         grads = visualize_cam(model, layer, filter_indices=20, seed_input=image)
 
         display_image = data_processing.un_normalize_color(image)
         plt.imshow(overlay(grads, cv2.convertScaleAbs(display_image)))
 
-        figure_name = sample["image_names"][i].replace("/", "_")
-        plt.savefig(os.path.join(figure_folder, figure_name))
+        figure_name = samples["image_names"][i].replace("/", "_")
+        plt.savefig(os.path.join(folder, figure_name))

@@ -5,11 +5,15 @@ import utilities
 import argparse
 import data_processing
 import os
+import numpy as np
+import visualisation
 
 from keras.callbacks import TensorBoard
 from sklearn.model_selection import train_test_split
 
 MODEL_DIR = "output/models"
+HEAT_MAP_FOLDER = "output/vis/heat_maps"
+ANGLE_VIS_FOLDER = "output/vis/angles"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a neural network to autonomously drive a virtual car. Example syntax:\n\npython model.py -d udacity_dataset -m model.h5')
@@ -20,11 +24,11 @@ if __name__ == "__main__":
     parser.add_argument('--randomize', '-r', dest='randomize', type=bool, required=False, default=False, help='Optional boolean: Randomize and overwrite driving log. Default False.')
     parser.add_argument('--tensorboard-dir', '-t', dest='tensorboard_dir', type=str, required=False, default='output/logs', help='The directory in which the tensorboard logs should be saved.')
     parser.add_argument('--test-size', '-ts', dest='test_size', type=int, required=False, default=0.2, help='The fraction of samples used for testing.')
+    parser.add_argument('--visualization-size', '-vs', dest='vis_size', type=int, required=False, default=50, help='The fraction of samples used for testing.')
     args = parser.parse_args()
 
     dataset_log = utilities.get_dataset_from_folder(args.dataset_directory)
     train, valid = train_test_split(dataset_log, test_size=args.test_size, random_state=0)
-
     model = architecture.bojarski_model()  # initialize neural network model that will be iteratively trained in batches
 
     tensorboard = TensorBoard(log_dir=args.tensorboard_dir, histogram_freq=0,
@@ -39,7 +43,10 @@ if __name__ == "__main__":
         validation_steps=(len(train) // args.gpu_batch_size)
     )
 
+    vis_sample = data_processing.random_batch(valid, args.dataset_directory, args.vis_size, random_seed=0)
+
+    visualisation.make_and_save_heat_maps(model, vis_sample, 5, HEAT_MAP_FOLDER)
+    visualisation.make_and_save_angle_visualization(model, vis_sample, ANGLE_VIS_FOLDER)
+
     utilities.make_folder(MODEL_DIR)
     model.save(os.path.join(MODEL_DIR, args.model_name))
-
-
