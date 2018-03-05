@@ -63,7 +63,7 @@ def preprocess(image, img_size):
 
 
 def normalize_color(image_matrix):
-    return image_matrix / 255 - 0.5
+    return image_matrix / float(255) - 0.5
 
 
 def un_normalize_color(image_matrix):

@@ -1,11 +1,14 @@
+import matplotlib 
+matplotlib.use("Agg")
+
 import cv2
 import utilities
-import matplotlib.pyplot as plt
 import os
 import data_processing
 import cv2
 
 from vis.visualization import visualize_cam, overlay
+
 
 
 SEABORN_RED = (82, 78, 196)
@@ -58,12 +61,12 @@ def make_and_save_angle_visualization(model, samples, dataset_dir, output_folder
 def make_and_save_heat_maps(model, samples, layer, output_folder):
     utilities.make_folder(output_folder)
 
-    plt.figure()
+    matplotlib.pyplot.figure()
     for i, image in enumerate(samples["images"]):
         grads = visualize_cam(model, layer, filter_indices=20, seed_input=image)
 
         display_image = data_processing.un_normalize_color(image)
-        plt.imshow(overlay(grads, cv2.convertScaleAbs(display_image)))
+        matplotlib.pyplot.imshow(overlay(grads, cv2.convertScaleAbs(display_image)))
 
         figure_name = samples["image_names"][i].replace("/", "_")
-        plt.savefig(os.path.join(output_folder, figure_name))
+        matplotlib.pyplot.savefig(os.path.join(output_folder, figure_name))
