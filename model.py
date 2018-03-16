@@ -7,7 +7,7 @@ import os
 import numpy as np
 import visualisation
 
-from keras.callbacks import TensorBoard, ModelCheckpoint
+from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
 from sklearn.model_selection import train_test_split
 
 MODEL_DIR = "output/models"
@@ -56,13 +56,17 @@ if __name__ == "__main__":
                                  save_weights_only=False,
                                  mode='auto', period=500)
 
+    earlyStopping = EarlyStopping(monitor='val_loss',
+                                  min_delta=0, patience=10, verbose=0,
+                                  mode='auto')
+
     model.fit_generator(
         generator=base_model.get_batch_generator(train,
                                                  dataset_path,
                                                  args.gpu_batch_size),
         steps_per_epoch=len(train) // args.gpu_batch_size,
         epochs=args.epochs,
-        callbacks=[tensorboard, checkpoint],
+        callbacks=[tensorboard, checkpoint, earlyStopping],
         validation_data=base_model.get_batch_generator(valid,
                                                        dataset_path,
                                                        args.gpu_batch_size),
