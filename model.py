@@ -7,7 +7,7 @@ import os
 import numpy as np
 import visualisation
 
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, ModelCheckpoint
 from sklearn.model_selection import train_test_split
 
 MODEL_DIR = "output/models"
@@ -43,15 +43,29 @@ if __name__ == "__main__":
     train, valid = train_test_split(dataset_log, test_size=args.test_size, random_state=RANDOM_SEED)
     model = base_model.get_model()  # initialize neural network model that will be iteratively trained in batches
 
-    tensorboard = TensorBoard(log_dir=os.path.join(TENSORBOARD_DIR, args.model_name), histogram_freq=0,
-                          write_graph=True, write_images=False)
+    # Callbacks
+    tensorboard = TensorBoard(log_dir=os.path.join(TENSORBOARD_DIR,
+                              args.model_name),
+                              histogram_freq=0,
+                              write_graph=True, write_images=False)
+    checkpoint = ModelCheckpoint(os.path.join(MODEL_DIR,
+                                 args.model_name +
+                                 '-{epoch:02d}-{val_loss:.2f}.hdf5'),
+                                 monitor='val_loss', verbose=0,
+                                 save_best_only=True,
+                                 save_weights_only=False,
+                                 mode='auto', period=500)
 
     model.fit_generator(
-        generator=base_model.get_batch_generator(train, dataset_path, args.gpu_batch_size),
+        generator=base_model.get_batch_generator(train,
+                                                 dataset_path,
+                                                 args.gpu_batch_size),
         steps_per_epoch=len(train) // args.gpu_batch_size,
         epochs=args.epochs,
-        callbacks=[tensorboard],
-        validation_data=base_model.get_batch_generator(valid, dataset_path, args.gpu_batch_size),
+        callbacks=[tensorboard, checkpoint],
+        validation_data=base_model.get_batch_generator(valid,
+                                                       dataset_path,
+                                                       args.gpu_batch_size),
         validation_steps=(len(valid) // args.gpu_batch_size)
     )
 
