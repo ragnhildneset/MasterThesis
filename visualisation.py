@@ -48,8 +48,8 @@ def make_and_save_angle_visualization(model, samples, dataset_dir, output_folder
     predictions = model.predict(samples["images"])
     utilities.make_folder(output_folder)
     for i, image in enumerate(samples["images"]):
-        angle = samples["steers"][i, 1]
-        pred_angle = predictions[i, 1]
+        angle = samples["steers"][i, 0]
+        pred_angle = predictions[i, 0]
 
         display_image = utilities.load_image(dataset_dir,  samples["image_names"][i])
         visualized_image = process_img_for_angle_visualization(display_image, angle, pred_angle, i)

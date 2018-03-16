@@ -3,9 +3,11 @@ import cv2
 import utilities
 
 
-def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320)):
+def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
+                    include_angles=True, include_speed=True, nof_outputs=2):
+
     images = np.zeros((batch_size, img_size[0], img_size[1], 3))
-    steers = np.zeros((batch_size, 2))
+    steers = np.zeros((batch_size, nof_outputs))
 
     while True:
         i = 0
@@ -20,7 +22,8 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320)):
                 image, angle = flip(image, angle)
 
             images[i] = preprocess(image, img_size)
-            steers[i] = [speed, angle]
+            steers[i] = [angle, speed] if (include_angles and include_speed) \
+                else ([speed] if include_speed else [angle])
 
             i += 1
             if i == batch_size:
@@ -28,9 +31,11 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320)):
         yield images, steers
 
 
-def random_batch(samples, dataset_path, batch_size, img_size=(67, 320), random_seed=None):
+def random_batch(samples, dataset_path, batch_size, img_size=(67, 320),
+                 random_seed=None, include_angles=True, include_speed=True,
+                 nof_outputs=2):
     images = np.zeros((batch_size, img_size[0], img_size[1], 3))
-    steers = np.zeros((batch_size, 2))
+    steers = np.zeros((batch_size, nof_outputs))
     image_names = []
 
     np.random.seed(random_seed)
@@ -43,7 +48,8 @@ def random_batch(samples, dataset_path, batch_size, img_size=(67, 320), random_s
         image = utilities.load_image(dataset_path, image_path)
 
         images[i] = preprocess(image, img_size)
-        steers[i] = [speed, angle]
+        steers[i] = [angle, speed] if (include_angles and include_speed) \
+            else ([speed] if include_speed else [angle])
         image_names.append(image_name)
 
     np.random.seed(None)
@@ -72,5 +78,3 @@ def un_normalize_color(image_matrix):
 
 def reduce_resolution(image, height, width):
     return cv2.resize(image, (width, height))
-
-

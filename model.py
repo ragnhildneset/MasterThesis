@@ -3,7 +3,6 @@
 import architecture
 import utilities
 import argparse
-import data_processing
 import os
 import numpy as np
 import visualisation
@@ -19,8 +18,11 @@ TENSORBOARD_DIR = "output/logs"
 
 RANDOM_SEED = 0
 
-def visualize(model, valid, dataset_dir, vis_size, model_name):
-    vis_sample = data_processing.random_batch(valid, dataset_dir, vis_size, random_seed=RANDOM_SEED)
+base_model = architecture.Bojarski_Model(include_speed=False)
+
+
+def visualize(model, valid, dataset_dir, vis_size, model_name, base_model):
+    vis_sample = base_model.get_random_batch(valid, dataset_dir, vis_size, random_seed=RANDOM_SEED)
     visualisation.make_and_save_heat_maps(model, vis_sample, 5, os.path.join(HEAT_MAP_DIR, model_name))
     visualisation.make_and_save_angle_visualization(model, vis_sample, dataset_dir, os.path.join(ANGLE_VIS_DIR, model_name))
 
@@ -39,21 +41,22 @@ if __name__ == "__main__":
 
     dataset_log = utilities.get_dataset_from_folder(dataset_path)
     train, valid = train_test_split(dataset_log, test_size=args.test_size, random_state=RANDOM_SEED)
-    model = architecture.bojarski_model()  # initialize neural network model that will be iteratively trained in batches
+    model = base_model.get_model()  # initialize neural network model that will be iteratively trained in batches
 
     tensorboard = TensorBoard(log_dir=os.path.join(TENSORBOARD_DIR, args.model_name), histogram_freq=0,
                           write_graph=True, write_images=False)
 
     model.fit_generator(
-        generator=data_processing.batch_generator(train, dataset_path, args.gpu_batch_size),
+        generator=base_model.get_batch_generator(train, dataset_path, args.gpu_batch_size),
         steps_per_epoch=len(train) // args.gpu_batch_size,
         epochs=args.epochs,
         callbacks=[tensorboard],
-        validation_data=data_processing.batch_generator(valid, dataset_path, args.gpu_batch_size),
+        validation_data=base_model.get_batch_generator(valid, dataset_path, args.gpu_batch_size),
         validation_steps=(len(valid) // args.gpu_batch_size)
     )
 
-    visualize(model, valid, dataset_path, args.vis_size, args.model_name)
+    visualize(model, valid, dataset_path, args.vis_size, args.model_name,
+              base_model)
 
     utilities.make_folder(MODEL_DIR)
     model.save(os.path.join(MODEL_DIR, args.model_name + '.h5'))
