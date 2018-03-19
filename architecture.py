@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Flatten, Dense, Conv2D
+from keras.layers import Flatten, Dense, Conv2D, Dropout
 import data_processing
 
 class Model:
@@ -35,6 +35,7 @@ class Bojarski_Model(Model):
         model.add(Conv2D(64, (3, 3), strides=(1, 1), activation="relu"))
         model.add(Conv2D(64, (3, 3), strides=(1, 1), activation="relu"))
         model.add(Flatten())
+        model.add(Dropout(rate=0.5))
         model.add(Dense(100, activation="relu"))
         model.add(Dense(50, activation="relu"))
         model.add(Dense(10, activation="relu"))
@@ -50,6 +51,7 @@ class Simplified_Bojarski_Model(Model):
         model.add(Conv2D(48, (5, 5), strides=(2, 2), activation="relu"))
         model.add(Conv2D(64, (3, 3), strides=(1, 1), activation="relu"))
         model.add(Flatten())
+        model.add(Dropout(rate=0.5))
         model.add(Dense(70, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(self.NOF_OUTPUTS))
@@ -64,6 +66,7 @@ class Very_Simplified_Bojarski_Model(Model):
         model.add(Conv2D(36, (5, 5), strides=(2, 2), activation="relu"))
         model.add(Conv2D(64, (3, 3), strides=(1, 1), activation="relu"))
         model.add(Flatten())
+        model.add(Dropout(rate=0.5))
         model.add(Dense(35, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(self.NOF_OUTPUTS))
