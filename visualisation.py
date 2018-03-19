@@ -19,7 +19,7 @@ SEABORN_BLUE = (176, 114, 76)
 def process_img_for_angle_visualization(img, angle, pred_angle, frame):
     font = cv2.FONT_HERSHEY_COMPLEX
 
-    img = cv2.resize(img, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_CUBIC)
+    img = cv2.resize(img, (864, 648), interpolation=cv2.INTER_CUBIC)
 
     h, w = img.shape[0:2]
 
