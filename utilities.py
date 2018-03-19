@@ -28,10 +28,14 @@ def get_dataset_from_csv(image_input_dir):
 
 
 # get dataset from folder with multiple csv files
-def get_dataset_from_folder(dataset_dir):
+def get_dataset_from_folder(dataset_dir, test_set_regex):
     all_files = glob.glob(os.path.join(dataset_dir, "*.csv"))
-    df_from_each_file = (pd.read_csv(f) for f in all_files)
-    return pd.concat(df_from_each_file, ignore_index=True)
+    test_set = glob.glob(os.path.join(dataset_dir, test_set_regex))
+    training_set = [x for x in all_files if x not in test_set]
+    training_dfs = (pd.read_csv(f) for f in training_set)
+    test_dfs = (pd.read_csv(f) for f in test_set)
+    return pd.concat(training_dfs,
+                     ignore_index=True), pd.concat(test_dfs, ignore_index=True)
 
 
 # utility function to display cv2 image

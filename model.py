@@ -39,8 +39,8 @@ if __name__ == "__main__":
 
     dataset_path = os.path.join(DATASET_DIR, args.dataset_directory)
 
-    dataset_log = utilities.get_dataset_from_folder(dataset_path)
-    train, valid = train_test_split(dataset_log, test_size=args.test_size, random_state=RANDOM_SEED)
+    train, valid = utilities.get_dataset_from_folder(dataset_path,
+                                                     'cybele_*.csv')
     model = base_model.get_model()  # initialize neural network model that will be iteratively trained in batches
 
     # Callbacks
