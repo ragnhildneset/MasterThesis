@@ -53,7 +53,7 @@ if __name__ == "__main__":
                                  '-{epoch:02d}-{val_loss:.2f}.hdf5'),
                                  monitor='val_loss', verbose=0,
                                  save_best_only=True,
-                                 save_weights_only=False,
+                                 save_weights_only=True,
                                  mode='auto', period=500)
 
     earlyStopping = EarlyStopping(monitor='val_loss',
@@ -70,7 +70,8 @@ if __name__ == "__main__":
         validation_data=base_model.get_batch_generator(valid,
                                                        dataset_path,
                                                        args.gpu_batch_size),
-        validation_steps=(len(valid) // args.gpu_batch_size)
+        validation_steps=(len(valid) // args.gpu_batch_size),
+        workers=16
     )
 
     visualize(model, valid, dataset_path, args.vis_size, args.model_name,
