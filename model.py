@@ -4,11 +4,9 @@ import architecture
 import utilities
 import argparse
 import os
-import numpy as np
 import visualisation
 
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
-from sklearn.model_selection import train_test_split
 
 MODEL_DIR = "output/models"
 HEAT_MAP_DIR = "output/vis/heat_maps"
@@ -23,7 +21,7 @@ base_model = architecture.Bojarski_Model(include_speed=False)
 
 def visualize(model, valid, dataset_dir, vis_size, model_name, base_model):
     vis_sample = base_model.get_random_batch(valid, dataset_dir, vis_size, random_seed=RANDOM_SEED)
-    visualisation.make_and_save_heat_maps(model, vis_sample, 5, os.path.join(HEAT_MAP_DIR, model_name))
+    visualisation.make_and_save_heat_maps_in_one(model, vis_sample, base_model.get_conv_layers(), os.path.join(HEAT_MAP_DIR, model_name))
     visualisation.make_and_save_angle_visualization(model, vis_sample, dataset_dir, os.path.join(ANGLE_VIS_DIR, model_name))
 
 
