@@ -6,7 +6,7 @@ import argparse
 import os
 import numpy as np
 import visualisation
-
+import keras
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
 from sklearn.model_selection import train_test_split
 
@@ -19,6 +19,22 @@ TENSORBOARD_DIR = "output/logs"
 RANDOM_SEED = 0
 
 base_model = architecture.Bojarski_Model(include_speed=False)
+
+class WithinRangePercentage(keras.callbacks.Callback):
+    def __init__(self, valid, dataset_dir):
+        self.valid = base_model.get_random_batch(valid, dataset_dir, valid.shape[0])
+        self.evals = []
+
+    def eval_map(self):
+        x_val, y_true = self.valid["images"], self.valid["steers"]
+        y_pred = self.model.predict(x_val)
+        return np.sum((np.absolute(np.subtract(y_true,y_pred)) < 0.1).astype(int))
+
+    def on_epoch_end(self, epoch, logs={}):
+        score = self.eval_map()
+        self.evals.append(score)
+
+    def plot_and_save(self):
 
 
 def visualize(model, valid, dataset_dir, vis_size, model_name, base_model):
@@ -40,7 +56,7 @@ if __name__ == "__main__":
     dataset_path = os.path.join(DATASET_DIR, args.dataset_directory)
 
     train, valid = utilities.get_dataset_from_folder(dataset_path,
-                                                     'cybele_*.csv')
+                                                     'first_*.csv')
     model = base_model.get_model()  # initialize neural network model that will be iteratively trained in batches
 
     # Callbacks
@@ -60,19 +76,21 @@ if __name__ == "__main__":
                                   min_delta=0, patience=150, verbose=0,
                                   mode='auto')
 
+    withinRangeEval = WithinRangePercentage(valid, dataset_path)
+
     model.fit_generator(
         generator=base_model.get_batch_generator(train,
                                                  dataset_path,
                                                  args.gpu_batch_size),
         steps_per_epoch=len(train) // args.gpu_batch_size,
         epochs=args.epochs,
-        callbacks=[tensorboard, checkpoint, earlyStopping],
+        callbacks=[tensorboard, checkpoint, earlyStopping, withinRangeEval],
         validation_data=base_model.get_batch_generator(valid,
                                                        dataset_path,
                                                        args.gpu_batch_size),
         validation_steps=(len(valid) // args.gpu_batch_size),
-        workers=16
     )
+    print(withinRangeEval.evals)
 
     visualize(model, valid, dataset_path, args.vis_size, args.model_name,
               base_model)
