@@ -4,37 +4,22 @@ import architecture
 import utilities
 import argparse
 import os
-import numpy as np
 import visualisation
-import keras
+import metrics
+
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
-from sklearn.model_selection import train_test_split
+
 
 MODEL_DIR = "output/models"
 HEAT_MAP_DIR = "output/vis/heat_maps"
 ANGLE_VIS_DIR = "output/vis/angles"
+METRICS_DIR = "output/metrics/accuracy"
 DATASET_DIR = "dataset/"
 TENSORBOARD_DIR = "output/logs"
 
 RANDOM_SEED = 0
 
 base_model = architecture.Bojarski_Model(include_speed=False)
-
-class WithinRangePercentage(keras.callbacks.Callback):
-    def __init__(self, valid, dataset_dir):
-        self.valid = base_model.get_random_batch(valid, dataset_dir, valid.shape[0])
-        self.evals = []
-
-    def eval_map(self):
-        x_val, y_true = self.valid["images"], self.valid["steers"]
-        y_pred = self.model.predict(x_val)
-        return np.sum((np.absolute(np.subtract(y_true,y_pred)) < 0.1).astype(int))
-
-    def on_epoch_end(self, epoch, logs={}):
-        score = self.eval_map()
-        self.evals.append(score)
-
-    def plot_and_save(self):
 
 
 def visualize(model, valid, dataset_dir, vis_size, model_name, base_model):
@@ -76,7 +61,8 @@ if __name__ == "__main__":
                                   min_delta=0, patience=150, verbose=0,
                                   mode='auto')
 
-    withinRangeEval = WithinRangePercentage(valid, dataset_path)
+    valid_processed = base_model.get_random_batch(valid, dataset_path, valid.shape[0])
+    custom_accuracy = metrics.Accuracy(valid_processed, METRICS_DIR, args.model_name)
 
     model.fit_generator(
         generator=base_model.get_batch_generator(train,
@@ -84,13 +70,13 @@ if __name__ == "__main__":
                                                  args.gpu_batch_size),
         steps_per_epoch=len(train) // args.gpu_batch_size,
         epochs=args.epochs,
-        callbacks=[tensorboard, checkpoint, earlyStopping, withinRangeEval],
+        callbacks=[tensorboard, checkpoint, earlyStopping, custom_accuracy],
         validation_data=base_model.get_batch_generator(valid,
                                                        dataset_path,
                                                        args.gpu_batch_size),
         validation_steps=(len(valid) // args.gpu_batch_size),
     )
-    print(withinRangeEval.evals)
+    custom_accuracy.plot_and_save()
 
     visualize(model, valid, dataset_path, args.vis_size, args.model_name,
               base_model)
