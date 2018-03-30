@@ -14,13 +14,13 @@ class Accuracy(keras.callbacks.Callback):
         self.accuracies = []
         self.limit = 0.1
 
-    def eval_map(self):
+    def eval(self):
         x_val, y_true = self.valid["images"], self.valid["steers"]
         y_pred = self.model.predict(x_val)
-        return np.sum((np.absolute(np.subtract(y_true, y_pred)) < self.limit).astype(int)) / len(y_pred)
+        return np.sum((np.absolute(np.subtract(y_true, y_pred)) < self.limit).astype(int)) / float(len(y_pred))
 
     def on_epoch_end(self, epoch, logs={}):
-        score = self.eval_map()
+        score = self.eval()
         self.accuracies.append(score)
 
     def plot_and_save(self):
