@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import utilities
+from PIL import Image
 
 
 def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
@@ -56,6 +57,7 @@ def random_batch(samples, dataset_path, batch_size, img_size=(67, 320),
     return {"images": images, "steers": steers, "image_names": image_names}
 
 
+
 def flip(image, angle):
     image = cv2.flip(image, flipCode=1)
     angle = angle * -1
@@ -78,3 +80,22 @@ def un_normalize_color(image_matrix):
 
 def reduce_resolution(image, height, width):
     return cv2.resize(image, (width, height))
+
+def random_brightness(image):
+    """
+    Randomly adjust brightness of the image.
+    """
+    # HSV (Hue, Saturation, Value) is also called HSB ('B' for Brightness).
+    new_img = image.astype(float)
+    value = np.random.randint(-28, 28)
+    if value > 0:
+        mask = (new_img + value) > 255
+    if value <= 0:
+        mask = (new_img + value) < 0
+    new_img += np.where(mask, 0, value)
+    return new_img
+
+image = utilities.load_image("dataset/example_data/first_test_run", "image1.png" )
+image = random_brightness(image)
+image = Image.fromarray(image, 'RGB')
+image.show()
