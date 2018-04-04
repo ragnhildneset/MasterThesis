@@ -5,6 +5,8 @@ import utilities
 import os
 import pickle
 
+import seaborn as sns
+sns.set(style="darkgrid")
 
 class Accuracy(keras.callbacks.Callback):
     def __init__(self, valid, output_folder, model_name):
