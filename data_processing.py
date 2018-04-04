@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 import utilities
-from PIL import Image
+import random
+import math
 
 
 def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
@@ -69,7 +70,7 @@ def flip(image, angle):
 
 
 def preprocess(image, img_size):
-    reduced_image = reduce_resolution(image, img_size[0], img_size[1])
+    reduced_image = reduce_resolution_and_crop_top(image, img_size[0], img_size[1])
     normalized_image = normalize_color(reduced_image)
     return normalized_image
 
@@ -95,12 +96,6 @@ def random_brightness(image):
     image1 = np.array(image1, dtype=np.uint8)
     image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
     return image1
-
-
-
-import numpy as np
-import random
-import math
 
 class RandomErasing(object):
     def __init__(self, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
@@ -129,3 +124,9 @@ class RandomErasing(object):
                 return img
 
         return img
+
+def reduce_resolution_and_crop_top(image, height, width):
+    cropped_top_offset = int(image.shape[0] - (image.shape[0] * 0.9))
+    cropped = image[cropped_top_offset:cropped_top_offset + image.shape[0],
+                    0:image.shape[1]]
+    return reduce_resolution(cropped, height, width)

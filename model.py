@@ -5,12 +5,15 @@ import utilities
 import argparse
 import os
 import visualisation
+import metrics
 
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
 
 MODEL_DIR = "output/models"
 HEAT_MAP_DIR = "output/vis/heat_maps"
 ANGLE_VIS_DIR = "output/vis/angles"
+METRICS_DIR = "output/metrics/accuracy"
+MERGED_VIS_DIR = "output/vis/angles_and_heat_maps"
 DATASET_DIR = "dataset/"
 TENSORBOARD_DIR = "output/logs"
 
@@ -20,9 +23,11 @@ base_model = architecture.Bojarski_Model(include_speed=False)
 
 
 def visualize(model, valid, dataset_dir, vis_size, model_name, base_model):
-    vis_sample = base_model.get_random_batch(valid, dataset_dir, vis_size, random_seed=RANDOM_SEED)
+    vis_number = len(valid) * vis_size / 100
+    vis_sample = base_model.get_random_batch(valid, dataset_dir, vis_number, random_seed=RANDOM_SEED)
     visualisation.make_and_save_heat_maps_in_one(model, vis_sample, base_model.get_conv_layers(), os.path.join(HEAT_MAP_DIR, model_name))
     visualisation.make_and_save_angle_visualization(model, vis_sample, dataset_dir, os.path.join(ANGLE_VIS_DIR, model_name))
+    visualisation.create_merged_angles_and_heat_maps(MERGED_VIS_DIR, HEAT_MAP_DIR, ANGLE_VIS_DIR, model_name)
 
 
 if __name__ == "__main__":
@@ -58,19 +63,22 @@ if __name__ == "__main__":
                                   min_delta=0, patience=150, verbose=0,
                                   mode='auto')
 
+    valid_processed = base_model.get_random_batch(valid, dataset_path, valid.shape[0])
+    custom_accuracy = metrics.Accuracy(valid_processed, METRICS_DIR, args.model_name)
+
     model.fit_generator(
         generator=base_model.get_batch_generator(train,
                                                  dataset_path,
                                                  args.gpu_batch_size),
         steps_per_epoch=len(train) // args.gpu_batch_size,
         epochs=args.epochs,
-        callbacks=[tensorboard, checkpoint, earlyStopping],
+        callbacks=[tensorboard, checkpoint, earlyStopping, custom_accuracy],
         validation_data=base_model.get_batch_generator(valid,
                                                        dataset_path,
                                                        args.gpu_batch_size),
         validation_steps=(len(valid) // args.gpu_batch_size),
-        workers=16
     )
+    custom_accuracy.plot_and_save()
 
     visualize(model, valid, dataset_path, args.vis_size, args.model_name,
               base_model)
