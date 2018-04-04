@@ -1,15 +1,14 @@
-import matplotlib 
+import matplotlib
 matplotlib.use("Agg")
 
 import cv2
 import utilities
 import os
+import glob
 import data_processing
-import cv2
 
 from vis.visualization import visualize_cam, overlay
-
-
+from PIL import Image
 
 SEABORN_RED = (82, 78, 196)
 SEABORN_GREEN = (104, 168, 85)
@@ -58,15 +57,79 @@ def make_and_save_angle_visualization(model, samples, dataset_dir, output_folder
         cv2.imwrite(os.path.join(output_folder, figure_name), visualized_image)
 
 
-def make_and_save_heat_maps(model, samples, layer, output_folder):
+def make_and_save_heat_maps(model, samples, layers, output_folder):
+    for layer in layers:
+        output_folder_name = output_folder + '-layer' + str(layer)
+        utilities.make_folder(output_folder_name)
+        matplotlib.pyplot.figure()
+        for i, image in enumerate(samples["images"]):
+            grads = visualize_cam(model, layer, filter_indices=20,
+                                  seed_input=image)
+
+            display_image = data_processing.un_normalize_color(image)
+
+            matplotlib.pyplot.imshow(overlay(grads,
+                                     cv2.convertScaleAbs(display_image)))
+
+            figure_name = samples["image_names"][i].replace("/", "_")
+            matplotlib.pyplot.savefig(
+                os.path.join(output_folder_name, figure_name))
+        matplotlib.pyplot.close('all')
+
+
+def make_and_save_heat_maps_in_one(model, samples, layers, output_folder):
     utilities.make_folder(output_folder)
-
-    matplotlib.pyplot.figure()
     for i, image in enumerate(samples["images"]):
-        grads = visualize_cam(model, layer, filter_indices=20, seed_input=image)
+        matplotlib.pyplot.figure()
+        f, axarr = matplotlib.pyplot.subplots(len(layers), 1)
+        plot_index = 0
 
-        display_image = data_processing.un_normalize_color(image)
-        matplotlib.pyplot.imshow(overlay(grads, cv2.convertScaleAbs(display_image)))
+        for layer in layers:
+            grads = visualize_cam(model, layer, filter_indices=20,
+                                  seed_input=image)
 
+            display_image = data_processing.un_normalize_color(image)
+
+            axarr[plot_index].set_title('Layer' + str(layer))
+            axarr[plot_index].axis('off')
+            axarr[plot_index].imshow(overlay(grads,
+                                     cv2.convertScaleAbs(display_image)))
+            plot_index += 1
+
+        matplotlib.pyplot.tight_layout()
         figure_name = samples["image_names"][i].replace("/", "_")
-        matplotlib.pyplot.savefig(os.path.join(output_folder, figure_name))
+        matplotlib.pyplot.savefig(
+            os.path.join(output_folder, figure_name))
+        matplotlib.pyplot.close('all')
+
+
+def create_merged_angles_and_heat_maps(merged_dir, heat_map_dir, angle_dir,
+                                       model_name):
+    utilities.make_folder(os.path.join(merged_dir, model_name))
+    heat_maps_dir = os.path.join(heat_map_dir, model_name)
+    angles_dir = os.path.join(angle_dir, model_name)
+
+    pngs = glob.glob(os.path.join(
+                       os.path.join(heat_map_dir, model_name),
+                       "*.png"))
+    jpgs = glob.glob(os.path.join(
+                       os.path.join(heat_map_dir, model_name),
+                       "*.jpg"))
+
+    images = pngs + jpgs
+    images = [os.path.basename(os.path.normpath(path)) for path in images]
+
+    for image in images:
+        heat_map = Image.open(os.path.join(heat_maps_dir, image))
+        angles = Image.open(os.path.join(angles_dir, image))
+
+        width = heat_map.size[0] + angles.size[0]
+        height = max(heat_map.size[1], angles.size[1])
+
+        new_image = Image.new('RGB', (width, height))
+
+        new_image.paste(heat_map, (0, 0))
+        new_image.paste(angles, (heat_map.size[0], 0))
+
+        new_image.save(os.path.join(
+                       os.path.join(merged_dir, model_name), image))

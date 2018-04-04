@@ -63,7 +63,7 @@ def flip(image, angle):
 
 
 def preprocess(image, img_size):
-    reduced_image = reduce_resolution(image, img_size[0], img_size[1])
+    reduced_image = reduce_resolution_and_crop_top(image, img_size[0], img_size[1])
     normalized_image = normalize_color(reduced_image)
     return normalized_image
 
@@ -78,3 +78,10 @@ def un_normalize_color(image_matrix):
 
 def reduce_resolution(image, height, width):
     return cv2.resize(image, (width, height))
+
+
+def reduce_resolution_and_crop_top(image, height, width):
+    cropped_top_offset = int(image.shape[0] - (image.shape[0] * 0.9))
+    cropped = image[cropped_top_offset:cropped_top_offset + image.shape[0],
+                    0:image.shape[1]]
+    return reduce_resolution(cropped, height, width)

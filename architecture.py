@@ -7,6 +7,7 @@ class Model:
         self.ANGLES = include_angles
         self.SPEED = include_speed
         self.NOF_OUTPUTS = 2 if (self.SPEED and self.ANGLES) else 1
+        self.CONV_LAYERS = []
 
     def get_batch_generator(self, data, dataset_path, batch_size,
                             img_size=(67, 320)):
@@ -25,9 +26,13 @@ class Model:
                                             include_speed=self.SPEED,
                                             nof_outputs=self.NOF_OUTPUTS)
 
+    def get_conv_layers(self):
+        return self.CONV_LAYERS
+
 
 class Bojarski_Model(Model):
     def get_model(self):
+        self.CONV_LAYERS = range(2, 6 + 1)
         model = Sequential()
         model.add(Conv2D(24, (5, 5), strides=(2, 2), activation="relu", input_shape=(67, 320, 3)))
         model.add(Conv2D(36, (5, 5), strides=(2, 2), activation="relu"))
@@ -45,6 +50,7 @@ class Bojarski_Model(Model):
 
 class Simplified_Bojarski_Model(Model):
     def get_model(self):
+        self.CONV_LAYERS = range(2, 5 + 1)
         model = Sequential()
         model.add(Conv2D(24, (5, 5), strides=(2, 2), activation="relu", input_shape=(67, 320, 3)))
         model.add(Conv2D(36, (5, 5), strides=(2, 2), activation="relu"))
@@ -61,6 +67,7 @@ class Simplified_Bojarski_Model(Model):
 
 class Very_Simplified_Bojarski_Model(Model):
     def get_model(self):
+        self.CONV_LAYERS = range(2, 4 + 1)
         model = Sequential()
         model.add(Conv2D(24, (5, 5), strides=(2, 2), activation="relu", input_shape=(67, 320, 3)))
         model.add(Conv2D(36, (5, 5), strides=(2, 2), activation="relu"))
