@@ -19,8 +19,13 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
             image_path = samples.iloc[index, 2]
             image = utilities.load_image(dataset_path, image_path)
 
+            #
+            # Augmentation
+            #
             if np.random.rand() < 0.6:
                 image, angle = flip(image, angle)
+
+            image = random_brightness(image)
 
             images[i] = preprocess(image, img_size)
             steers[i] = [angle, speed] if (include_angles and include_speed) \
@@ -57,7 +62,6 @@ def random_batch(samples, dataset_path, batch_size, img_size=(67, 320),
     return {"images": images, "steers": steers, "image_names": image_names}
 
 
-
 def flip(image, angle):
     image = cv2.flip(image, flipCode=1)
     angle = angle * -1
@@ -81,21 +85,14 @@ def un_normalize_color(image_matrix):
 def reduce_resolution(image, height, width):
     return cv2.resize(image, (width, height))
 
-def random_brightness(image):
-    """
-    Randomly adjust brightness of the image.
-    """
-    # HSV (Hue, Saturation, Value) is also called HSB ('B' for Brightness).
-    new_img = image.astype(float)
-    value = np.random.randint(-28, 28)
-    if value > 0:
-        mask = (new_img + value) > 255
-    if value <= 0:
-        mask = (new_img + value) < 0
-    new_img += np.where(mask, 0, value)
-    return new_img
 
-image = utilities.load_image("dataset/example_data/first_test_run", "image1.png" )
-image = random_brightness(image)
-image = Image.fromarray(image, 'RGB')
-image.show()
+def random_brightness(image):
+    image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    image1 = np.array(image1, dtype=np.float64)
+    random_bright = .5 + np.random.uniform()
+    image1[:, :, 2] = image1[:, :, 2] * random_bright
+    image1[:, :, 2][image1[:, :, 2] > 255] = 255
+    image1 = np.array(image1, dtype=np.uint8)
+    image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
+    return image1
+
