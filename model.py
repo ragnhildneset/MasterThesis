@@ -16,6 +16,7 @@ METRICS_DIR = "output/metrics/accuracy"
 MERGED_VIS_DIR = "output/vis/angles_and_heat_maps"
 DATASET_DIR = "dataset/"
 TENSORBOARD_DIR = "output/logs"
+SUMMARY_DIR = "output/summary"
 
 RANDOM_SEED = 0
 
@@ -26,10 +27,6 @@ def visualize(model, valid, dataset_dir, vis_size, model_name, base_model):
     visualisation.make_and_save_heat_maps_in_one(model, vis_sample, base_model.get_conv_layers(), os.path.join(HEAT_MAP_DIR, model_name))
     visualisation.make_and_save_angle_visualization(model, vis_sample, dataset_dir, os.path.join(ANGLE_VIS_DIR, model_name))
     visualisation.create_merged_angles_and_heat_maps(MERGED_VIS_DIR, HEAT_MAP_DIR, ANGLE_VIS_DIR, model_name)
-
-def write_summary():
-    return
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a neural network to autonomously drive a virtual car. Example syntax:\n\npython model.py -d udacity_dataset -m model.h5')
@@ -86,8 +83,9 @@ if __name__ == "__main__":
     )
     custom_accuracy.plot_and_save()
 
-    visualize(model, valid, dataset_path, args.vis_size, args.model_name,
-              base_model)
+    #visualize(model, valid, dataset_path, args.vis_size, args.model_name,
+    #          base_model)
 
     utilities.make_folder(MODEL_DIR)
     model.save(os.path.join(MODEL_DIR, args.model_name + '.h5'))
+    utilities.write_summary(SUMMARY_DIR, args.model_name, args.dataset_directory, train.shape[0], args.test_set_name, valid.shape[0], args.architecture)
