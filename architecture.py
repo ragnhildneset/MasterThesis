@@ -79,3 +79,11 @@ class Very_Simplified_Bojarski_Model(Model):
         model.add(Dense(self.NOF_OUTPUTS))
         model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
         return model
+
+
+def get_model(name, include_speed=False):
+    return {
+        'Bojarski': Bojarski_Model(include_speed=include_speed),
+        'Simplified_Bojarski': Simplified_Bojarski_Model(include_speed=include_speed),
+        'Very_Simplified_Bojarski' : Very_Simplified_Bojarski_Model(include_speed=include_speed)
+    }[name]
