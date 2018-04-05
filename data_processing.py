@@ -11,7 +11,6 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
     images = np.zeros((batch_size, img_size[0], img_size[1], 3))
     steers = np.zeros((batch_size, nof_outputs))
 
-    random_erasing = RandomErasing()
     while True:
         i = 0
         for index in np.random.permutation(samples.shape[0]):
@@ -97,33 +96,26 @@ def random_brightness(image):
     image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
     return image1
 
-class RandomErasing(object):
-    def __init__(self, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
-        self.mean = mean
-        self.sl = sl
-        self.sh = sh
-        self.r1 = r1
 
-    def __call__(self, img):
+def random_erasing(self, img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
+    for attempt in range(100):
+        area = img.shape[0] * img.shape[1]
 
-        for attempt in range(100):
-            area = img.shape[0] * img.shape[1]
+        target_area = random.uniform(sl, sh) * area
+        aspect_ratio = random.uniform(r1, 1 / r1)
 
-            target_area = random.uniform(self.sl, self.sh) * area
-            aspect_ratio = random.uniform(self.r1, 1 / self.r1)
+        h = int(round(math.sqrt(target_area * aspect_ratio)))
+        w = int(round(math.sqrt(target_area / aspect_ratio)))
+        if w < img.shape[1] and h < img.shape[0]:
+            x1 = random.randint(0, img.shape[0] - h)
+            y1 = random.randint(0, img.shape[1] - w)
 
-            h = int(round(math.sqrt(target_area * aspect_ratio)))
-            w = int(round(math.sqrt(target_area / aspect_ratio)))
-            if w < img.shape[1] and h < img.shape[0]:
-                x1 = random.randint(0, img.shape[0] - h)
-                y1 = random.randint(0, img.shape[1] - w)
+            img[x1:x1 + h, y1:y1 + w, 0] = mean[0]
+            img[x1:x1 + h, y1:y1 + w, 1] = mean[1]
+            img[x1:x1 + h, y1:y1 + w, 2] = mean[2]
+            return img
 
-                img[x1:x1 + h, y1:y1 + w, 0] = self.mean[0]
-                img[x1:x1 + h, y1:y1 + w, 1] = self.mean[1]
-                img[x1:x1 + h, y1:y1 + w, 2] = self.mean[2]
-                return img
-
-        return img
+    return img
 
 def reduce_resolution_and_crop_top(image, height, width):
     cropped_top_offset = int(image.shape[0] - (image.shape[0] * 0.9))
