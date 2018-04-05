@@ -19,8 +19,6 @@ TENSORBOARD_DIR = "output/logs"
 
 RANDOM_SEED = 0
 
-base_model = architecture.Bojarski_Model(include_speed=False)
-
 
 def visualize(model, valid, dataset_dir, vis_size, model_name, base_model):
     vis_number = len(valid) * vis_size / 100
@@ -29,21 +27,29 @@ def visualize(model, valid, dataset_dir, vis_size, model_name, base_model):
     visualisation.make_and_save_angle_visualization(model, vis_sample, dataset_dir, os.path.join(ANGLE_VIS_DIR, model_name))
     visualisation.create_merged_angles_and_heat_maps(MERGED_VIS_DIR, HEAT_MAP_DIR, ANGLE_VIS_DIR, model_name)
 
+def write_summary():
+    return
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a neural network to autonomously drive a virtual car. Example syntax:\n\npython model.py -d udacity_dataset -m model.h5')
     parser.add_argument('--dataset-directory', '-d', dest='dataset_directory', type=str, required=True, help='Required string: Directory containing driving log and images.')
     parser.add_argument('--model-name', '-m', dest='model_name', type=str, required=True, help='Required string: Name of model e.g model.h5.')
-    parser.add_argument('--gpu-batch-size', '-g', dest='gpu_batch_size', type=int, required=False, default=512, help='Optional integer: Image batch size that fits in VRAM. Default 512.')
+    parser.add_argument('--gpu-batch-size', '-g', dest='gpu_batch_size', type=int, required=False, default=64, help='Optional integer: Image batch size that fits in VRAM. Default 512.')
     parser.add_argument('--test-size', '-ts', dest='test_size', type=int, required=False, default=0.2, help='The fraction of samples used for testing.')
     parser.add_argument('--visualization-size', '-vs', dest='vis_size', type=int, required=False, default=50, help='The number of images to be selected for visualisation.')
-    parser.add_argument('--epochs', '-e', dest='epochs', type=int, required=False, default=15, help='The number of images to be selected for visualisation.')
+    parser.add_argument('--epochs', '-e', dest='epochs', type=int, required=False, default=15, help='The number of epochs')
+    parser.add_argument('--test-set-name', '-t', dest='test_set_name', type=str, required=False, default='cybele_*.csv', help='Name of the test set to be used.')
+    parser.add_argument('--architecture', '-a', dest='architecture', type=str, required=False, default='Bojarski', help='Name of the architecture to be used.')
     args = parser.parse_args()
 
     dataset_path = os.path.join(DATASET_DIR, args.dataset_directory)
 
     train, valid = utilities.get_dataset_from_folder(dataset_path,
-                                                     'cybele_*.csv')
+                                                     args.test_set_name)
+
+    base_model = architecture.get_model(args.architecture,
+                                        include_speed=False)
     model = base_model.get_model()  # initialize neural network model that will be iteratively trained in batches
 
     # Callbacks
