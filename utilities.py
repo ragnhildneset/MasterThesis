@@ -58,6 +58,6 @@ def write_summary(summary_dir, model_name, dataset_dir, training_size, test_set_
     make_folder(summary_dir)
     f = open(os.path.join(summary_dir, model_name), 'w')
     f.write("Model name: %s \n" % (model_name))
-    f.write("Dataset folder:  %s , containing a total of %s elements \n" % (dataset_dir, test_size + training_size))
-    f.write("Test set name: %s, containing %s elements \n" % (test_set_name, test_size))
+    f.write("Dataset folder:  %s , containing a total of %s elements. \n" % (dataset_dir, test_size + training_size))
+    f.write("Test set name: %s, containing %s elements. \n" % (test_set_name, test_size))
     f.write("Architecture: %s \n" % (architecture))

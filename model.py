@@ -33,7 +33,6 @@ if __name__ == "__main__":
     parser.add_argument('--dataset-directory', '-d', dest='dataset_directory', type=str, required=True, help='Required string: Directory containing driving log and images.')
     parser.add_argument('--model-name', '-m', dest='model_name', type=str, required=True, help='Required string: Name of model e.g model.h5.')
     parser.add_argument('--gpu-batch-size', '-g', dest='gpu_batch_size', type=int, required=False, default=64, help='Optional integer: Image batch size that fits in VRAM. Default 512.')
-    parser.add_argument('--test-size', '-ts', dest='test_size', type=int, required=False, default=0.2, help='The fraction of samples used for testing.')
     parser.add_argument('--visualization-size', '-vs', dest='vis_size', type=int, required=False, default=50, help='The number of images to be selected for visualisation.')
     parser.add_argument('--epochs', '-e', dest='epochs', type=int, required=False, default=15, help='The number of epochs')
     parser.add_argument('--test-set-name', '-t', dest='test_set_name', type=str, required=False, default='cybele_*.csv', help='Name of the test set to be used.')
