@@ -97,7 +97,7 @@ def random_brightness(image):
     return image1
 
 
-def random_erasing(self, img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
+def random_erasing(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
     for attempt in range(100):
         area = img.shape[0] * img.shape[1]
 
