@@ -70,19 +70,21 @@ if __name__ == "__main__":
     model.fit_generator(
         generator=base_model.get_batch_generator(train,
                                                  dataset_path,
-                                                 args.gpu_batch_size),
+                                                 args.gpu_batch_size,
+                                                 augmentation=True),
         steps_per_epoch=len(train) // args.gpu_batch_size,
         epochs=args.epochs,
         callbacks=[tensorboard, checkpoint, earlyStopping, custom_accuracy],
         validation_data=base_model.get_batch_generator(valid,
                                                        dataset_path,
-                                                       args.gpu_batch_size),
+                                                       args.gpu_batch_size,
+                                                       augmentation=False),
         validation_steps=(len(valid) // args.gpu_batch_size),
     )
     custom_accuracy.plot_and_save()
 
-    #visualize(model, valid, dataset_path, args.vis_size, args.model_name,
-    #          base_model)
+    visualize(model, valid, dataset_path, args.vis_size, args.model_name,
+              base_model)
 
     utilities.make_folder(MODEL_DIR)
     model.save(os.path.join(MODEL_DIR, args.model_name + '.h5'))
