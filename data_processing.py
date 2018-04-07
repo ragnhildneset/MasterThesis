@@ -113,9 +113,9 @@ def random_erasing(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
             x1 = random.randint(0, img.shape[0] - h)
             y1 = random.randint(0, img.shape[1] - w)
 
-            img[x1:x1 + h, y1:y1 + w, 0] = mean[0]
-            img[x1:x1 + h, y1:y1 + w, 1] = mean[1]
-            img[x1:x1 + h, y1:y1 + w, 2] = mean[2]
+            img[x1:x1 + h, y1:y1 + w, 0] = img[x1:x1 + h, y1:y1 + w, 0] * random.randint(0, 255)
+            img[x1:x1 + h, y1:y1 + w, 1] = img[x1:x1 + h, y1:y1 + w, 0] * random.randint(0, 255)
+            img[x1:x1 + h, y1:y1 + w, 2] = img[x1:x1 + h, y1:y1 + w, 0] * random.randint(0, 255)
             return img
 
     return img
@@ -127,7 +127,7 @@ def reduce_resolution_and_crop_top(image, height, width):
     return reduce_resolution(cropped, height, width)
 
 
-def random_brightness_spots(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
+def random_brightness_spots(img, sl=0.02, sh=0.4, r1=0.3):
     for attempt in range(100):
         area = img.shape[0] * img.shape[1]
 
