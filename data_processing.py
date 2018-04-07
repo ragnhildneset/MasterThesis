@@ -6,7 +6,7 @@ import math
 
 
 def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
-                    include_angles=True, include_speed=True, nof_outputs=2):
+                    include_angles=True, include_speed=True, nof_outputs=2, augmentation=False):
 
     images = np.zeros((batch_size, img_size[0], img_size[1], 3))
     steers = np.zeros((batch_size, nof_outputs))
@@ -23,9 +23,11 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
             # Augmentation
             if np.random.rand() < 0.6:
                 image, angle = flip(image, angle)
-            image = random_brightness(image)
-            if np.random.rand() < 0.6:
-                image = random_erasing(image)
+
+            if augmentation:
+                image = random_brightness(image)
+                if np.random.rand() < 0.6:
+                    image = random_erasing(image)
 
             images[i] = preprocess(image, img_size)
             steers[i] = [angle, speed] if (include_angles and include_speed) \

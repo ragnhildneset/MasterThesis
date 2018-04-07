@@ -10,12 +10,13 @@ class Model:
         self.CONV_LAYERS = []
 
     def get_batch_generator(self, data, dataset_path, batch_size,
-                            img_size=(67, 320)):
+                            img_size=(67, 320), augmentation=False):
         return data_processing.batch_generator(data, dataset_path,
                                                batch_size, img_size,
                                                include_angles=self.ANGLES,
                                                include_speed=self.SPEED,
-                                               nof_outputs=self.NOF_OUTPUTS)
+                                               nof_outputs=self.NOF_OUTPUTS,
+                                               augmentation=augmentation)
 
     def get_random_batch(self, data, dataset_path, batch_size,
                          img_size=(67, 320), random_seed=None):
@@ -79,3 +80,11 @@ class Very_Simplified_Bojarski_Model(Model):
         model.add(Dense(self.NOF_OUTPUTS))
         model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
         return model
+
+
+def get_model(name, include_speed=False):
+    return {
+        'Bojarski': Bojarski_Model(include_speed=include_speed),
+        'Simplified_Bojarski': Simplified_Bojarski_Model(include_speed=include_speed),
+        'Very_Simplified_Bojarski' : Very_Simplified_Bojarski_Model(include_speed=include_speed)
+    }[name]
