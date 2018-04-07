@@ -27,8 +27,9 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
             if augmentation:
                 image = random_brightness(image)
                 if np.random.rand() < 0.6:
-                    image = random_erasing(image)
-
+                    image = brightness_spots(image)
+                if np.random.rand() < 0.6:
+                    image = erasing_spots(image)
 
             images[i] = preprocess(image, img_size)
             steers[i] = [angle, speed] if (include_angles and include_speed) \
@@ -100,7 +101,7 @@ def random_brightness(image):
     return image1
 
 
-def random_erasing(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
+def erasing_spots(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
     for attempt in range(100):
         area = img.shape[0] * img.shape[1]
 
@@ -127,7 +128,7 @@ def reduce_resolution_and_crop_top(image, height, width):
     return reduce_resolution(cropped, height, width)
 
 
-def random_brightness_spots(img, sl=0.02, sh=0.4, r1=0.3):
+def brightness_spots(img, sl=0.02, sh=0.4, r1=0.3):
     for attempt in range(100):
         area = img.shape[0] * img.shape[1]
 
