@@ -29,6 +29,7 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
                 if np.random.rand() < 0.6:
                     image = random_erasing(image)
 
+
             images[i] = preprocess(image, img_size)
             steers[i] = [angle, speed] if (include_angles and include_speed) \
                 else ([speed] if include_speed else [angle])
@@ -125,21 +126,8 @@ def reduce_resolution_and_crop_top(image, height, width):
                     0:image.shape[1]]
     return reduce_resolution(cropped, height, width)
 
-def add_random_shadow(image):
-    top_y = 320*np.random.uniform()
-    top_x = 0
-    bot_x = 160
-    bot_y = 320*np.random.uniform()
-    mask = 0*image[:,:,1]
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
-    X_m = np.mgrid[0:image.shape[0],0:image.shape[1]][0]
-    Y_m = np.mgrid[0:image.shape[0],0:image.shape[1]][1]
-    mask[((X_m-top_x)*(bot_y-top_y) -(bot_x - top_x)*(Y_m-top_y) >=0)]=1
-    image[:,:,1][mask] = image[:,:,1][mask]*1.5
-    image = cv2.cvtColor(image, cv2.COLOR_HLS2RGB)
-    return image
 
-def random_brightness(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
+def random_brightness_spots(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
     for attempt in range(100):
         area = img.shape[0] * img.shape[1]
 
@@ -148,19 +136,22 @@ def random_brightness(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
 
         h = int(round(math.sqrt(target_area * aspect_ratio)))
         w = int(round(math.sqrt(target_area / aspect_ratio)))
+
+        img1 = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        img1 = np.array(img1, dtype=np.float64)
+
+        brightness_factor = random.uniform(1.1, 1.5) if random.random() < 0.7 else random.randint(2,5)
+
         if w < img.shape[1] and h < img.shape[0]:
             x1 = random.randint(0, img.shape[0] - h)
             y1 = random.randint(0, img.shape[1] - w)
 
-            img[x1:x1 + h, y1:y1 + w, 0] = mean[0]
-            img[x1:x1 + h, y1:y1 + w, 1] = mean[1]
-            img[x1:x1 + h, y1:y1 + w, 2] = mean[2]
-            return img
+            img1[x1:x1 + h, y1:y1 + w, 2] = img1[x1:x1 + h, y1:y1 + w, 2] * brightness_factor
+            img1[x1:x1 + h, y1:y1 + w, 2][img1[x1:x1 + h, y1:y1 + w, 2] > 255] = 255
+
+            img1 = img1.astype(np.uint8)
+            img1 = cv2.cvtColor(img1, cv2.COLOR_HSV2RGB)
+
+            return img1
 
     return img
-
-image = cv2.imread("dataset/ordered_training_data/second_runs/image1.jpg")
-image = add_random_shadow(image)
-cv2.imshow('image', image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
