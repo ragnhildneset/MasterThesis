@@ -12,7 +12,7 @@ from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
 MODEL_DIR = "output/models"
 HEAT_MAP_DIR = "output/vis/heat_maps"
 ANGLE_VIS_DIR = "output/vis/angles"
-METRICS_DIR = "output/metrics/accuracy"
+METRICS_DIR = "output/metrics/"
 MERGED_VIS_DIR = "output/vis/angles_and_heat_maps"
 DATASET_DIR = "dataset/"
 TENSORBOARD_DIR = "output/logs"
@@ -65,7 +65,7 @@ if __name__ == "__main__":
                                   mode='auto')
 
     valid_processed = base_model.get_random_batch(valid, dataset_path, valid.shape[0])
-    custom_accuracy = metrics.Accuracy(valid_processed, METRICS_DIR, args.model_name)
+    custom_accuracy = metrics.Accuracy(valid_processed, METRICS_DIR + 'accuracy', args.model_name)
 
     model.fit_generator(
         generator=base_model.get_batch_generator(train,
@@ -80,6 +80,12 @@ if __name__ == "__main__":
         validation_steps=(len(valid) // args.gpu_batch_size),
     )
     custom_accuracy.plot_and_save()
+
+    prediction_histogram = metrics.PredictionHistogram(model, valid_processed,
+                                                       METRICS_DIR +
+                                                       'histogram',
+                                                       args.model_name)
+    prediction_histogram.plot_and_save()
 
     #visualize(model, valid, dataset_path, args.vis_size, args.model_name,
     #          base_model)
