@@ -95,8 +95,8 @@ if __name__ == "__main__":
                                                        args.model_name)
     prediction_histogram.plot_and_save()
 
-    #visualize(model, valid, dataset_path, args.vis_size, args.model_name,
-    #          base_model)
+    visualize(model, valid, dataset_path, args.vis_size, args.model_name,
+              base_model)
 
     utilities.make_folder(MODEL_DIR)
     model.save(os.path.join(MODEL_DIR, args.model_name + '.h5'))
