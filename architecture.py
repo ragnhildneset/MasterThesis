@@ -45,7 +45,7 @@ class Bojarski_Model(Model):
         model.add(Dense(50, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(self.NOF_OUTPUTS))
-        model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
+        model.compile(optimizer="adam", loss="mse", metrics=['accuracy', 'mae'])
         return model
 
 class Simplified_Bojarski_Model(Model):
@@ -61,7 +61,7 @@ class Simplified_Bojarski_Model(Model):
         model.add(Dense(70, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(self.NOF_OUTPUTS))
-        model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
+        model.compile(optimizer="adam", loss="mse", metrics=['accuracy', 'mae'])
         return model
 
 
@@ -77,7 +77,7 @@ class Very_Simplified_Bojarski_Model(Model):
         model.add(Dense(35, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(self.NOF_OUTPUTS))
-        model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
+        model.compile(optimizer="adam", loss="mse", metrics=['accuracy', 'mae'])
         return model
 
 
