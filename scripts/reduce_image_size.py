@@ -27,7 +27,7 @@ for image_dir in dirs:
     for image_name in image_names:
         image = cv2.imread(os.path.join(current_dir, image_name))
         if image is not None:
-            reduced_image = cv2.resize(image, (320, 67))
+            reduced_image = cv2.resize(image, (320, 75))
             cv2.imwrite(os.path.join(new_current_dir, image_name), reduced_image)
 
 
