@@ -66,12 +66,10 @@ if __name__ == "__main__":
 
     valid_processed = base_model.get_random_batch(valid, dataset_path,
                                                   valid.shape[0])
-    custom_accuracy = metrics.Accuracy(valid_processed, METRICS_DIR +
-                                       'accuracy', args.model_name)
-    spearman_correlation = metrics.SpearmanCorrelation(valid_processed,
-                                                       METRICS_DIR +
-                                                       'spearman_correlation',
-                                                       args.model_name)
+
+    metrics_handler = metrics.MetricsHandler(valid_processed,
+                                                      METRICS_DIR,
+                                                      args.model_name)
 
     model.fit_generator(
         generator=base_model.get_batch_generator(train,
@@ -79,21 +77,14 @@ if __name__ == "__main__":
                                                  args.gpu_batch_size),
         steps_per_epoch=len(train) // args.gpu_batch_size,
         epochs=args.epochs,
-        callbacks=[tensorboard, checkpoint, earlyStopping, custom_accuracy,
-                   spearman_correlation],
+        callbacks=[tensorboard, checkpoint, earlyStopping, metrics_handler],
         validation_data=base_model.get_batch_generator(valid,
                                                        dataset_path,
                                                        args.gpu_batch_size),
         validation_steps=(len(valid) // args.gpu_batch_size),
     )
-    custom_accuracy.plot_and_save()
-    spearman_correlation.plot_and_save()
 
-    prediction_histogram = metrics.PredictionHistogram(model, valid_processed,
-                                                       METRICS_DIR +
-                                                       'histogram',
-                                                       args.model_name)
-    prediction_histogram.plot_and_save()
+    metrics_handler.plot_and_save()
 
     visualize(model, valid, dataset_path, args.vis_size, args.model_name,
               base_model)
