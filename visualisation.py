@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use("Agg")  # Needed for docker container with no screen
 
 import cv2
 import utilities
@@ -9,6 +9,10 @@ import data_processing
 
 from vis.visualization import visualize_cam, overlay
 from PIL import Image
+
+import numpy as np
+from visual_backprop import VisualBackprop
+
 
 SEABORN_RED = (82, 78, 196)
 SEABORN_GREEN = (104, 168, 85)
@@ -57,24 +61,40 @@ def make_and_save_angle_visualization(model, samples, dataset_dir, output_folder
         cv2.imwrite(os.path.join(output_folder, figure_name), visualized_image)
 
 
-def make_and_save_heat_maps(model, samples, layers, output_folder):
-    for layer in layers:
-        output_folder_name = output_folder + '-layer' + str(layer)
-        utilities.make_folder(output_folder_name)
-        matplotlib.pyplot.figure()
-        for i, image in enumerate(samples["images"]):
-            grads = visualize_cam(model, layer, filter_indices=20,
-                                  seed_input=image)
+def make_and_save_visualbackprop_masks(model, samples, output_folder):
+    output_folder_name = output_folder
+    visual_backprop = VisualBackprop(model)
 
-            display_image = data_processing.un_normalize_color(image)
+    utilities.make_folder(output_folder_name)
+    matplotlib.pyplot.figure(figsize=(9, 9))
+    f, axarr = matplotlib.pyplot.subplots(3, 1)
+    for i, image in enumerate(samples["images"]):
+        # get mask and get x and y dimension
+        mask = visual_backprop.get_mask(image)[:, :, 0]
 
-            matplotlib.pyplot.imshow(overlay(grads,
-                                     cv2.convertScaleAbs(display_image)))
+        # values for colormap normalization
+        vmin = np.min(mask)
+        vmax = np.percentile(mask, 99)
 
-            figure_name = samples["image_names"][i].replace("/", "_")
-            matplotlib.pyplot.savefig(
-                os.path.join(output_folder_name, figure_name))
-        matplotlib.pyplot.close('all')
+        display_image = data_processing.un_normalize_color(image)
+
+        # Regular image
+        axarr[0].axis('off')
+        axarr[0].imshow(display_image)
+
+        # Heatmap overlay
+        axarr[1].axis('off')
+        axarr[1].imshow(display_image)
+        axarr[1].imshow(mask, alpha=.6, cmap='jet', vmin=vmin, vmax=vmax)
+
+        # Black and white mask
+        axarr[2].axis('off')
+        axarr[2].imshow(mask, cmap='gray', vmin=vmin, vmax=vmax)
+
+        figure_name = samples["image_names"][i].replace("/", "_")
+        matplotlib.pyplot.savefig(
+            os.path.join(output_folder_name, figure_name))
+    matplotlib.pyplot.close('all')
 
 
 def make_and_save_heat_maps_in_one(model, samples, layers, output_folder):
