@@ -85,3 +85,10 @@ def reduce_resolution_and_crop_top(image, height, width):
     cropped = image[cropped_top_offset:cropped_top_offset + image.shape[0],
                     0:image.shape[1]]
     return reduce_resolution(cropped, height, width)
+
+
+def upsample_large_angles(samples):
+    is_large_angle = samples['angle'].abs() > 0.5
+    samples_large = samples[is_large_angle]
+
+    return samples.append([samples_large]*5)
