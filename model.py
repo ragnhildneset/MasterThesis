@@ -6,6 +6,7 @@ import argparse
 import os
 import visualisation
 import metrics
+import data_processing
 
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
 
@@ -43,9 +44,11 @@ if __name__ == "__main__":
     train, valid = utilities.get_dataset_from_folder(dataset_path,
                                                      args.test_set_name)
 
+    train = data_processing.upsample_large_angles(train)
+
     base_model = architecture.get_model(args.architecture,
                                         include_speed=False)
-    model = base_model.get_model()  # initialize neural network model that will be iteratively trained in batches
+    model = base_model.get_model()
 
     # Callbacks
     tensorboard = TensorBoard(log_dir=os.path.join(TENSORBOARD_DIR,
