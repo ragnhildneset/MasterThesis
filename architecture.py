@@ -46,6 +46,23 @@ class Bojarski_Model(Model):
         model.add(Dense(50, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(self.NOF_OUTPUTS))
+        model.compile(optimizer="adam", loss="mse", metrics=['accuracy', 'mae'])
+        return model
+
+class Bojarski_Model2FC(Model):
+    def get_model(self):
+        self.CONV_LAYERS = range(2, 6 + 1)
+        model = Sequential()
+        model.add(Conv2D(24, (5, 5), strides=(2, 2), activation="relu", input_shape=(67, 320, 3)))
+        model.add(Conv2D(36, (5, 5), strides=(2, 2), activation="relu"))
+        model.add(Conv2D(48, (5, 5), strides=(2, 2), activation="relu"))
+        model.add(Conv2D(64, (3, 3), strides=(1, 1), activation="relu"))
+        model.add(Conv2D(64, (3, 3), strides=(1, 1), activation="relu"))
+        model.add(Flatten())
+        model.add(Dropout(rate=0.5))
+        model.add(Dense(50, activation="relu"))
+        model.add(Dense(10, activation="relu"))
+        model.add(Dense(self.NOF_OUTPUTS))
         model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
         return model
 
@@ -62,7 +79,7 @@ class Simplified_Bojarski_Model(Model):
         model.add(Dense(70, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(self.NOF_OUTPUTS))
-        model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
+        model.compile(optimizer="adam", loss="mse", metrics=['accuracy', 'mae'])
         return model
 
 
@@ -78,13 +95,14 @@ class Very_Simplified_Bojarski_Model(Model):
         model.add(Dense(35, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(self.NOF_OUTPUTS))
-        model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
+        model.compile(optimizer="adam", loss="mse", metrics=['accuracy', 'mae'])
         return model
 
 
 def get_model(name, include_speed=False):
     return {
         'Bojarski': Bojarski_Model(include_speed=include_speed),
+        'Bojarski2FC': Bojarski_Model2FC(include_speed=include_speed),
         'Simplified_Bojarski': Simplified_Bojarski_Model(include_speed=include_speed),
         'Very_Simplified_Bojarski' : Very_Simplified_Bojarski_Model(include_speed=include_speed)
     }[name]
