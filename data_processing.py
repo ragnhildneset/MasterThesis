@@ -30,6 +30,8 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
                     image = brightness_spots(image)
                 if np.random.rand() < 0.6:
                     image = erasing_spots(image)
+                if np.random.rand() < 0.6:
+                    image, angle = random_translations(image, angle)
 
             images[i] = preprocess(image, img_size)
             steers[i] = [angle, speed] if (include_angles and include_speed) \
@@ -128,6 +130,8 @@ def reduce_resolution_and_crop_top(image, height, width):
     return reduce_resolution(cropped, height, width)
 
 
+
+
 def brightness_spots(img, sl=0.02, sh=0.4, r1=0.3):
     for attempt in range(100):
         area = img.shape[0] * img.shape[1]
@@ -156,3 +160,14 @@ def brightness_spots(img, sl=0.02, sh=0.4, r1=0.3):
             return img1
 
     return img
+
+
+def random_translations(image, angle, min_x=-100, max_x=100, angle_scale=0.004):
+    tr_x = np.random.randint(min_x, max_x)
+    tr_angle = angle - tr_x * angle_scale
+    tr_angle = min(1, max(-1, tr_angle))
+    Trans_M = np.float32([[1, 0, tr_x], [0, 1, 0]])
+    rows, cols = image.shape[0], image.shape[1]
+    image_tr = cv2.warpAffine(image, Trans_M, (cols, rows))
+
+    return image_tr, tr_angle
