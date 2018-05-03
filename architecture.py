@@ -62,7 +62,7 @@ class Bojarski_Model2FC(Model):
         model.add(Dense(50, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(self.NOF_OUTPUTS))
-        model.compile(optimizer="adam", loss="mse", metrics=['accuracy'])
+        model.compile(optimizer="adam", loss="mse", metrics=['accuracy', 'mae'])
         return model
 
 class Simplified_Bojarski_Model(Model):
