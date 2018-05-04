@@ -10,12 +10,13 @@ class Model:
         self.CONV_LAYERS = []
 
     def get_batch_generator(self, data, dataset_path, batch_size,
-                            img_size=(67, 320)):
+                            img_size=(67, 320), augmentation=False):
         return data_processing.batch_generator(data, dataset_path,
                                                batch_size, img_size,
                                                include_angles=self.ANGLES,
                                                include_speed=self.SPEED,
-                                               nof_outputs=self.NOF_OUTPUTS)
+                                               nof_outputs=self.NOF_OUTPUTS,
+                                               augmentation=augmentation)
 
     def get_random_batch(self, data, dataset_path, batch_size,
                          img_size=(67, 320), random_seed=None):

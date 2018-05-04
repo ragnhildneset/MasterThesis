@@ -1,10 +1,11 @@
 import numpy as np
 import cv2
 import utilities
-
+import random
+import math
 
 def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
-                    include_angles=True, include_speed=True, nof_outputs=2):
+                    include_angles=True, include_speed=True, nof_outputs=2, augmentation=False):
 
     images = np.zeros((batch_size, img_size[0], img_size[1], 3))
     steers = np.zeros((batch_size, nof_outputs))
@@ -18,8 +19,15 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
             image_path = samples.iloc[index, 2]
             image = utilities.load_image(dataset_path, image_path)
 
-            if np.random.rand() < 0.6:
-                image, angle = flip(image, angle)
+            if augmentation:
+                if np.random.rand() < 0.6:
+                    image, angle = flip(image, angle)
+                if np.random.rand() < 0.6:
+                    image = random_brightness(image)
+                if np.random.rand() < 0.6:
+                    image = erasing_spots(image)
+                if np.random.rand() < 0.6:
+                    image, angle = random_translations(image, angle)
 
             images[i] = preprocess(image, img_size)
             steers[i] = [angle, speed] if (include_angles and include_speed) \
@@ -80,11 +88,83 @@ def reduce_resolution(image, height, width):
     return cv2.resize(image, (width, height))
 
 
+def random_brightness(image):
+    image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    image1 = np.array(image1, dtype=np.float64)
+    random_bright = .5 + np.random.uniform()
+    image1[:, :, 2] = image1[:, :, 2] * random_bright
+    image1[:, :, 2][image1[:, :, 2] > 255] = 255
+    image1 = np.array(image1, dtype=np.uint8)
+    image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
+    return image1
+
+
+def erasing_spots(img, sl=0.02, sh=0.4, r1=0.3):
+    for attempt in range(100):
+        area = img.shape[0] * img.shape[1]
+
+        target_area = random.uniform(sl, sh) * area
+        aspect_ratio = random.uniform(r1, 1 / r1)
+
+        h = int(round(math.sqrt(target_area * aspect_ratio)))
+        w = int(round(math.sqrt(target_area / aspect_ratio)))
+        if w < img.shape[1] and h < img.shape[0]:
+            x1 = random.randint(0, img.shape[0] - h)
+            y1 = random.randint(0, img.shape[1] - w)
+
+            img[x1:x1 + h, y1:y1 + w, 0] = 255
+            img[x1:x1 + h, y1:y1 + w, 1] = 255
+            img[x1:x1 + h, y1:y1 + w, 2] = 255
+            return img
+
+    return img
+
 def reduce_resolution_and_crop_top(image, height, width):
     cropped_top_offset = int(image.shape[0] - (image.shape[0] * 0.9))
     cropped = image[cropped_top_offset:cropped_top_offset + image.shape[0],
                     0:image.shape[1]]
     return reduce_resolution(cropped, height, width)
+
+
+def brightness_spots(img, sl=0.02, sh=0.4, r1=0.3):
+    for attempt in range(100):
+        area = img.shape[0] * img.shape[1]
+
+        target_area = random.uniform(sl, sh) * area
+        aspect_ratio = random.uniform(r1, 1 / r1)
+
+        h = int(round(math.sqrt(target_area * aspect_ratio)))
+        w = int(round(math.sqrt(target_area / aspect_ratio)))
+
+        img1 = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        img1 = np.array(img1, dtype=np.float64)
+
+        brightness_factor = random.uniform(1.1, 1.5) if random.random() < 0.7 else random.randint(2,5)
+
+        if w < img.shape[1] and h < img.shape[0]:
+            x1 = random.randint(0, img.shape[0] - h)
+            y1 = random.randint(0, img.shape[1] - w)
+
+            img1[x1:x1 + h, y1:y1 + w, 2] = img1[x1:x1 + h, y1:y1 + w, 2] * brightness_factor
+            img1[x1:x1 + h, y1:y1 + w, 2][img1[x1:x1 + h, y1:y1 + w, 2] > 255] = 255
+
+            img1 = img1.astype(np.uint8)
+            img1 = cv2.cvtColor(img1, cv2.COLOR_HSV2RGB)
+
+            return img1
+
+    return img
+
+
+def random_translations(image, angle, min_x=-100, max_x=100, angle_scale=0.004):
+    tr_x = np.random.randint(min_x, max_x)
+    tr_angle = angle - tr_x * angle_scale
+    tr_angle = min(1, max(-1, tr_angle))
+    Trans_M = np.float32([[1, 0, tr_x], [0, 1, 0]])
+    rows, cols = image.shape[0], image.shape[1]
+    image_tr = cv2.warpAffine(image, Trans_M, (cols, rows))
+
+    return image_tr, tr_angle
 
 
 def upsample_large_angles(samples):
