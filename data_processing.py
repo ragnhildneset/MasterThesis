@@ -165,3 +165,9 @@ def random_translations(image, angle, min_x=-100, max_x=100, angle_scale=0.004):
     image_tr = cv2.warpAffine(image, Trans_M, (cols, rows))
 
     return image_tr, tr_angle
+
+ def upsample_large_angles(samples):
+    is_large_angle = samples['angle'].abs() > 0.5
+    samples_large = samples[is_large_angle]
+
+    return samples.append([samples_large]*5)
