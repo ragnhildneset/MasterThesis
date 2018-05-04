@@ -66,7 +66,7 @@ if __name__ == "__main__":
                                  mode='auto', period=500)
 
     earlyStopping = EarlyStopping(monitor='val_loss',
-                                  min_delta=0, patience=150, verbose=0,
+                                  min_delta=0, patience=20, verbose=0,
                                   mode='auto')
 
     valid_processed = base_model.get_random_batch(valid, dataset_path,
