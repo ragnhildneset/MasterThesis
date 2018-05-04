@@ -33,7 +33,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset-directory', '-d', dest='dataset_directory', type=str, required=True, help='Required string: Directory containing driving log and images.')
     parser.add_argument('--model-name', '-m', dest='model_name', type=str, required=True, help='Required string: Name of model e.g model.h5.')
     parser.add_argument('--architecture', '-a', dest='architecture', type=str, required=False, default="Bojarski", help='Nameg of the architecture to be used.')
-    parser.add_argument('--augmentation', '-au', dest='augmentation', type=bool, required=False, default=False, help='Use augmentation on training set.')
+    parser.add_argument('--augmentation', '-au', dest='augmentation', type=bool, required=False, default=True, help='Use augmentation on training set.')
     parser.add_argument('--gpu-batch-size', '-g', dest='gpu_batch_size', type=int, required=False, default=64, help='Optional integer: Image batch size that fits in VRAM. Default 512.')
     parser.add_argument('--visualization-size', '-vs', dest='vis_size', type=int, required=False, default=50, help='The number of images to be selected for visualisation.')
     parser.add_argument('--epochs', '-e', dest='epochs', type=int, required=False, default=15, help='The number of epochs')
@@ -45,7 +45,8 @@ if __name__ == "__main__":
     train, valid = utilities.get_dataset_from_folder(dataset_path,
                                                      args.test_set_name)
 
-    train = data_processing.upsample_large_angles(train)
+    if args.augmentation:
+        train = data_processing.upsample_large_angles(train)
 
     base_model = architecture.get_model(args.architecture,
                                         include_speed=False)
