@@ -31,11 +31,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a neural network to autonomously drive a virtual car. Example syntax:\n\npython model.py -d udacity_dataset -m model.h5')
     parser.add_argument('--dataset-directory', '-d', dest='dataset_directory', type=str, required=True, help='Required string: Directory containing driving log and images.')
     parser.add_argument('--model-name', '-m', dest='model_name', type=str, required=True, help='Required string: Name of model e.g model.h5.')
+    parser.add_argument('--architecture', '-a', dest='architecture', type=str, required=False, default="Bojarski", help='Nameg of the architecture to be used.')
+    parser.add_argument('--augmentation', '-au', dest='augmentation', type=bool, required=False, default=False, help='Use augmentation on training set.')
     parser.add_argument('--gpu-batch-size', '-g', dest='gpu_batch_size', type=int, required=False, default=64, help='Optional integer: Image batch size that fits in VRAM. Default 512.')
     parser.add_argument('--visualization-size', '-vs', dest='vis_size', type=int, required=False, default=50, help='The number of images to be selected for visualisation.')
     parser.add_argument('--epochs', '-e', dest='epochs', type=int, required=False, default=15, help='The number of epochs')
-    parser.add_argument('--test-set-name', '-t', dest='test_set_name', type=str, required=False, default='cybele_*.csv', help='Name of the test set to be used.')
-    parser.add_argument('--architecture', '-a', dest='architecture', type=str, required=False, default='Bojarski', help='Name of the architecture to be used.')
+    parser.add_argument('--test-set-name', '-t', dest='test_set_name', type=str, required=False, default='track4*.csv', help='Name of the test set to be used.')
     args = parser.parse_args()
 
     dataset_path = os.path.join(DATASET_DIR, args.dataset_directory)
@@ -75,7 +76,7 @@ if __name__ == "__main__":
         generator=base_model.get_batch_generator(train,
                                                  dataset_path,
                                                  args.gpu_batch_size,
-                                                 augmentation=True),
+                                                 augmentation=args.augmentation),
         steps_per_epoch=len(train) // args.gpu_batch_size,
         epochs=args.epochs,
         callbacks=[tensorboard, checkpoint, earlyStopping, metrics_handler],
@@ -93,4 +94,4 @@ if __name__ == "__main__":
 
     utilities.make_folder(MODEL_DIR)
     model.save(os.path.join(MODEL_DIR, args.model_name + '.h5'))
-    utilities.write_summary(SUMMARY_DIR, args.model_name, args.dataset_directory, train.shape[0], args.test_set_name, valid.shape[0], args.architecture)
+    utilities.write_summary(SUMMARY_DIR, args.model_name, args.dataset_directory, train.shape[0], args.test_set_name, valid.shape[0], args.architecture, args.augmentation)
