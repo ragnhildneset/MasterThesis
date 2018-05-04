@@ -4,7 +4,6 @@ import utilities
 import random
 import math
 
-
 def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
                     include_angles=True, include_speed=True, nof_outputs=2, augmentation=False):
 
@@ -20,14 +19,11 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
             image_path = samples.iloc[index, 2]
             image = utilities.load_image(dataset_path, image_path)
 
-            # Augmentation
-            if np.random.rand() < 0.6:
-                image, angle = flip(image, angle)
-
             if augmentation:
-                image = random_brightness(image)
                 if np.random.rand() < 0.6:
-                    image = brightness_spots(image)
+                    image, angle = flip(image, angle)
+                if np.random.rand() < 0.6:
+                    image = random_brightness(image)
                 if np.random.rand() < 0.6:
                     image = erasing_spots(image)
                 if np.random.rand() < 0.6:
@@ -103,7 +99,7 @@ def random_brightness(image):
     return image1
 
 
-def erasing_spots(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
+def erasing_spots(img, sl=0.02, sh=0.4, r1=0.3):
     for attempt in range(100):
         area = img.shape[0] * img.shape[1]
 
@@ -116,9 +112,9 @@ def erasing_spots(img, sl=0.02, sh=0.4, r1=0.3, mean=[127, 127, 127]):
             x1 = random.randint(0, img.shape[0] - h)
             y1 = random.randint(0, img.shape[1] - w)
 
-            img[x1:x1 + h, y1:y1 + w, 0] = img[x1:x1 + h, y1:y1 + w, 0] * random.randint(0, 255)
-            img[x1:x1 + h, y1:y1 + w, 1] = img[x1:x1 + h, y1:y1 + w, 0] * random.randint(0, 255)
-            img[x1:x1 + h, y1:y1 + w, 2] = img[x1:x1 + h, y1:y1 + w, 0] * random.randint(0, 255)
+            img[x1:x1 + h, y1:y1 + w, 0] = 255
+            img[x1:x1 + h, y1:y1 + w, 1] = 255
+            img[x1:x1 + h, y1:y1 + w, 2] = 255
             return img
 
     return img
@@ -128,8 +124,6 @@ def reduce_resolution_and_crop_top(image, height, width):
     cropped = image[cropped_top_offset:cropped_top_offset + image.shape[0],
                     0:image.shape[1]]
     return reduce_resolution(cropped, height, width)
-
-
 
 
 def brightness_spots(img, sl=0.02, sh=0.4, r1=0.3):
