@@ -3,6 +3,7 @@ import cv2
 import utilities
 import random
 import math
+import os
 
 
 def batch_generator(samples, dataset_path, batch_size, img_size,
@@ -15,13 +16,17 @@ def batch_generator(samples, dataset_path, batch_size, img_size,
     while True:
         i = 0
         for index in np.random.permutation(samples.shape[0]):
-            speed = samples.iloc[index, 0]
-            angle = samples.iloc[index, 1]
+            sample = samples.iloc[index]
 
-            image_path = samples.iloc[index, 2]
-            image = utilities.load_image(dataset_path, image_path)
+            angle = sample["steering"]
+            speed = sample["speed"]
+            image = utilities.load_image(dataset_path, sample["center"])
 
             if augmentation:
+                if np.random.rand() < 0.5:
+                    left = utilities.load_image(dataset_path, sample["left"])
+                    right = utilities.load_image(dataset_path, sample["right"])
+                    image, angle = use_side_cameras(left, right, angle)
                 if np.random.rand() < 0.6:
                     image, angle = flip(image, angle)
                 image = random_hsv_adjustment(image)
@@ -49,12 +54,12 @@ def random_batch(samples, dataset_path, batch_size, img_size,
 
     np.random.seed(random_seed)
     for i, index in enumerate(np.random.choice(samples.shape[0], batch_size)):
-        speed = samples.iloc[index, 0]
-        angle = samples.iloc[index, 1]
-        image_name = samples.iloc[index, 2]
+        sample = samples.iloc[index]
 
-        image_path = samples.iloc[index, 2]
-        image = utilities.load_image(dataset_path, image_path)
+        angle = sample["steering"]
+        speed = sample["speed"]
+        image = utilities.load_image(dataset_path, sample["center"])
+        image_name = sample["center"]
 
         images[i] = preprocess(image, img_size)
         steers[i] = [angle, speed] if (include_angles and include_speed) \
@@ -89,6 +94,14 @@ def reduce_resolution(image, height, width):
     return cv2.resize(image, (width, height))
 
 
+def use_side_cameras(left, right, angle):
+    if np.random.rand() < 0.6:
+        rot_angle = angle -0.25
+        return left, rot_angle
+    rot_angle = angle + 0.25
+    return right, rot_angle
+
+
 def random_hsv_adjustment(image):
     image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     image1 = np.array(image1, dtype=np.float64)
@@ -101,8 +114,8 @@ def random_hsv_adjustment(image):
     image1[:, :, 0] = image1[:, :, 0] * random_color
     image1[:, :, 0][image1[:, :, 0] > 255] = 255
 
-    random_hue = 0.5 + np.random.uniform()
-    image1[:, :, 1] = image1[:, :, 1] * random_hue
+    random_saturation = 0.5 + np.random.uniform()
+    image1[:, :, 1] = image1[:, :, 1] * random_saturation
     image1[:, :, 1][image1[:, :, 1] > 255] = 255
 
     image1 = np.array(image1, dtype=np.uint8)
@@ -180,7 +193,7 @@ def random_translations(image, angle, min_x=-30, max_x=30, angle_scale=0.0064):
 
 
 def upsample_large_angles(samples):
-    is_large_angle = samples['angle'].abs() > 0.5
+    is_large_angle = samples['steering'].abs() > 0.5
     samples_large = samples[is_large_angle]
 
     return samples.append([samples_large]*5)
