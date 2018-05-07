@@ -4,7 +4,8 @@ import utilities
 import random
 import math
 
-def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
+
+def batch_generator(samples, dataset_path, batch_size, img_size,
                     include_angles=True, include_speed=True, nof_outputs=2, augmentation=False):
 
     images = np.zeros((batch_size, img_size[0], img_size[1], 3))
@@ -39,7 +40,7 @@ def batch_generator(samples, dataset_path, batch_size, img_size=(67, 320),
         yield images, steers
 
 
-def random_batch(samples, dataset_path, batch_size, img_size=(67, 320),
+def random_batch(samples, dataset_path, batch_size, img_size,
                  random_seed=None, include_angles=True, include_speed=True,
                  nof_outputs=2):
     images = np.zeros((batch_size, img_size[0], img_size[1], 3))
@@ -120,7 +121,7 @@ def erasing_spots(img, sl=0.02, sh=0.4, r1=0.3):
     return img
 
 def reduce_resolution_and_crop_top(image, height, width):
-    cropped_top_offset = int(image.shape[0] - (image.shape[0] * 0.9))
+    cropped_top_offset = int(image.shape[0] - (image.shape[0] * 0.65))
     cropped = image[cropped_top_offset:cropped_top_offset + image.shape[0],
                     0:image.shape[1]]
     return reduce_resolution(cropped, height, width)
