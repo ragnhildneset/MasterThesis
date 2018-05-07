@@ -32,24 +32,28 @@ class VisualBackprop():
         visual_bpr = None
         layer_outs = self.forward_pass([x_value, 0])
 
-        # Iterate over feature maps upstream
-        for i in range(len(self.model.layers)-1, -1, -1):
-            if 'Conv2D' in str(type(self.model.layers[i])):
-                # Average the feature map
-                layer = np.mean(layer_outs[i], axis=3, keepdims=True)
+        conv_layers = []
+        for layer, layer_out in zip(self.model.layers, layer_outs):
+            if 'Conv2D' in str(type(layer)):
+                conv_layers.append((layer, layer_out))
 
-                if visual_bpr is not None:
+        # Iterate over feature maps upstream
+        for i in range(len(conv_layers)-1, -1, -1):
+            # Average the feature map
+            layer = np.mean(conv_layers[i][1], axis=3, keepdims=True)
+
+            if visual_bpr is not None:
+                if visual_bpr.shape != layer.shape:
+                    visual_bpr = self._deconv(visual_bpr,
+                                              conv_layers[i+1][0])
+                    # If upsampling fails
                     if visual_bpr.shape != layer.shape:
-                        visual_bpr = self._deconv(visual_bpr,
-                                                  self.model.layers[i+1])
-                        # If upsampling fails
-                        if visual_bpr.shape != layer.shape:
-                            visual_bpr = self._add_padding_to_match_shape(
-                                                visual_bpr,
-                                                layer.shape)
-                    visual_bpr = visual_bpr * layer  # Pointwise product
-                else:
-                    visual_bpr = layer
+                        visual_bpr = self._add_padding_to_match_shape(
+                                            visual_bpr,
+                                            layer.shape)
+                visual_bpr = visual_bpr * layer  # Pointwise product
+            else:
+                visual_bpr = layer
 
         # Last upsampling to input image size
         visual_bpr = self._deconv(visual_bpr, self.model.layers[0])
