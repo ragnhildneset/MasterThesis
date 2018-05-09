@@ -6,7 +6,8 @@ import math
 
 
 def batch_generator(samples, dataset_path, batch_size, img_size,
-                    include_angles=True, include_speed=True, nof_outputs=2, augmentation=False):
+                    include_angles=True, include_speed=True, nof_outputs=2,
+                    augmentation=False):
 
     images = np.zeros((batch_size, img_size[0], img_size[1], 3))
     steers = np.zeros((batch_size, nof_outputs))
@@ -119,6 +120,7 @@ def erasing_spots(img, sl=0.02, sh=0.4, r1=0.3):
             return img
 
     return img
+
 
 def reduce_resolution_and_crop_top(image, height, width):
     cropped_top_offset = int(image.shape[0] - (image.shape[0] * 0.65))
