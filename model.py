@@ -50,6 +50,7 @@ if __name__ == "__main__":
 
     base_model = architecture.get_model(args.architecture,
                                         include_speed=False)
+
     model = base_model.get_model()
 
     # Callbacks
@@ -88,6 +89,7 @@ if __name__ == "__main__":
                                                        dataset_path,
                                                        args.gpu_batch_size,
                                                        augmentation=False),
+        workers=16,
         validation_steps=(len(valid) // args.gpu_batch_size),
     )
 
