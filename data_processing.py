@@ -24,11 +24,10 @@ def batch_generator(samples, dataset_path, batch_size, img_size,
             if augmentation:
                 if np.random.rand() < 0.6:
                     image, angle = flip(image, angle)
-                if np.random.rand() < 0.6:
-                    image = random_brightness(image)
-                if np.random.rand() < 0.6:
+                image = random_hsv_adjustment(image)
+                if np.random.rand() < 0.3:
                     image = erasing_spots(image)
-                if np.random.rand() < 0.6:
+                if np.random.rand() < 0.8:
                     image, angle = random_translations(image, angle)
 
             images[i] = preprocess(image, img_size)
@@ -90,12 +89,22 @@ def reduce_resolution(image, height, width):
     return cv2.resize(image, (width, height))
 
 
-def random_brightness(image):
+def random_hsv_adjustment(image):
     image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     image1 = np.array(image1, dtype=np.float64)
-    random_bright = .5 + np.random.uniform()
+
+    random_bright = 0.5 + np.random.uniform()
     image1[:, :, 2] = image1[:, :, 2] * random_bright
     image1[:, :, 2][image1[:, :, 2] > 255] = 255
+
+    random_color = 0.9 + np.random.uniform()*0.2
+    image1[:, :, 0] = image1[:, :, 0] * random_color
+    image1[:, :, 0][image1[:, :, 0] > 255] = 255
+
+    random_hue = 0.5 + np.random.uniform()
+    image1[:, :, 1] = image1[:, :, 1] * random_hue
+    image1[:, :, 1][image1[:, :, 1] > 255] = 255
+
     image1 = np.array(image1, dtype=np.uint8)
     image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
     return image1
@@ -159,7 +168,7 @@ def brightness_spots(img, sl=0.02, sh=0.4, r1=0.3):
     return img
 
 
-def random_translations(image, angle, min_x=-100, max_x=100, angle_scale=0.004):
+def random_translations(image, angle, min_x=-30, max_x=30, angle_scale=0.0064):
     tr_x = np.random.randint(min_x, max_x)
     tr_angle = angle - tr_x * angle_scale
     tr_angle = min(1, max(-1, tr_angle))
