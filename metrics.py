@@ -19,7 +19,8 @@ class MetricsHandler(keras.callbacks.Callback):
         self.model_name = model_name
         self.predictions = []
         self.accuracy = Accuracy(output_folder, model_name)
-        self.spearmanCorrelation = SpearmanCorrelation(output_folder, model_name)
+        self.spearmanCorrelation = SpearmanCorrelation(output_folder,
+                                                       model_name)
 
     def on_epoch_end(self, epoch, logs={}):
         x_val, targets = self.valid["images"], self.valid["steers"]
@@ -32,7 +33,9 @@ class MetricsHandler(keras.callbacks.Callback):
     def plot_and_save(self):
         self.accuracy.plot_and_save()
         self.spearmanCorrelation.plot_and_save()
-        prediction_histogram = PredictionHistogram(self.model, self.valid, self.output_folder, self.model_name )
+        prediction_histogram = PredictionHistogram(self.model, self.valid,
+                                                   self.output_folder,
+                                                   self.model_name)
         prediction_histogram.plot_and_save()
 
         utilities.make_folder(self.predictions_folder)
@@ -70,7 +73,8 @@ class SpearmanCorrelation:
         self.correlations = []
 
     def eval(self, predictions, targets):
-        correlation = np.sum(np.cos(np.absolute(np.subtract(targets, predictions)))) \
+        correlation = np.sum(np.cos(np.absolute(np.subtract(targets,
+                                                            predictions)))) \
             / float(len(predictions))
         self.correlations.append(correlation)
 
