@@ -38,6 +38,7 @@ if __name__ == "__main__":
     parser.add_argument('--visualization-size', '-vs', dest='vis_size', type=int, required=False, default=50, help='The number of images to be selected for visualisation.')
     parser.add_argument('--epochs', '-e', dest='epochs', type=int, required=False, default=15, help='The number of epochs')
     parser.add_argument('--test-set-name', '-t', dest='test_set_name', type=str, required=False, default='track4*.csv', help='Name of the test set to be used.')
+    parser.add_argument('--learning-rate', '-lr', dest='learning_rate', type=float, required=False, default='0.01', help='The learning rate to be used.')
     args = parser.parse_args()
 
     dataset_path = os.path.join(DATASET_DIR, args.dataset_directory)
@@ -49,6 +50,7 @@ if __name__ == "__main__":
         train = data_processing.upsample_large_angles(train)
 
     base_model = architecture.get_model(args.architecture,
+                                        args.learning_rate,
                                         include_speed=False)
 
     model = base_model.get_model()
@@ -96,7 +98,7 @@ if __name__ == "__main__":
     metrics_handler.plot_and_save()
     utilities.make_folder(MODEL_DIR)
     model.save(os.path.join(MODEL_DIR, args.model_name + '.h5'))
-    utilities.write_summary(SUMMARY_DIR, args.model_name, args.dataset_directory, train.shape[0], args.test_set_name, valid.shape[0], args.architecture, args.augmentation)
+    utilities.write_summary(SUMMARY_DIR, args.model_name, args.dataset_directory, train.shape[0], args.test_set_name, valid.shape[0], args.architecture, args.augmentation, args.learning_rate)
 
     visualize(model, valid, dataset_path, args.vis_size, args.model_name,
               base_model)

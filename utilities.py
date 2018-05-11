@@ -32,7 +32,8 @@ def load_image(dataset_path, image_file):
 
 
 def write_summary(summary_dir, model_name, dataset_dir, training_size,
-                  test_set_name, test_size, architecture, augmentation):
+                  test_set_name, test_size, architecture, augmentation,
+                  learning_rate):
     make_folder(summary_dir)
     f = open(os.path.join(summary_dir, model_name), 'w')
     f.write("Model name: %s \n" % (model_name))
@@ -42,3 +43,4 @@ def write_summary(summary_dir, model_name, dataset_dir, training_size,
                                                                test_size))
     f.write("Architecture: %s \n" % (architecture))
     f.write("Augmentation: %s \n" % (augmentation))
+    f.write("Learning rate: %s \n" % (learning_rate))
