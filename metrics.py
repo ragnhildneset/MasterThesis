@@ -6,7 +6,9 @@ import os
 import pickle
 
 import seaborn as sns
-sns.set(style="darkgrid")
+current_palette = sns.color_palette('deep')
+sns.set_style("whitegrid")
+sns.set_palette(current_palette)
 
 
 class MetricsHandler(keras.callbacks.Callback):
@@ -100,8 +102,8 @@ class PredictionHistogram():
         axarr[0].set_title('Predicted angles')
         axarr[0].hist(y_pred)
         axarr[1].set_title('True angles')
-        axarr[1].hist(y_true)
-
+        axarr[1].hist(y_true, color=current_palette[1])
+        plt.tight_layout()
         utilities.make_folder(self.output_folder)
         plt.savefig(os.path.join(self.output_folder, self.model_name))
         plt.close('all')
