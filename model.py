@@ -64,7 +64,7 @@ if __name__ == "__main__":
                                  monitor='val_loss', verbose=0,
                                  save_best_only=True,
                                  save_weights_only=True,
-                                 mode='auto', period=500)
+                                 mode='auto', period=3)
 
     earlyStopping = EarlyStopping(monitor='val_loss',
                                   min_delta=0, patience=20, verbose=0,
