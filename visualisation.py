@@ -7,7 +7,6 @@ import os
 import glob
 import data_processing
 
-from vis.visualization import visualize_cam, overlay
 from PIL import Image
 
 import numpy as np
@@ -95,32 +94,6 @@ def make_and_save_visualbackprop_masks(model, samples, output_folder):
         matplotlib.pyplot.savefig(
             os.path.join(output_folder_name, figure_name))
     matplotlib.pyplot.close('all')
-
-
-def make_and_save_heat_maps_in_one(model, samples, layers, output_folder):
-    utilities.make_folder(output_folder)
-    for i, image in enumerate(samples["images"]):
-        matplotlib.pyplot.figure()
-        f, axarr = matplotlib.pyplot.subplots(len(layers), 1)
-        plot_index = 0
-
-        for layer in layers:
-            grads = visualize_cam(model, layer, filter_indices=20,
-                                  seed_input=image)
-
-            display_image = data_processing.un_normalize_color(image)
-
-            axarr[plot_index].set_title('Layer' + str(layer))
-            axarr[plot_index].axis('off')
-            axarr[plot_index].imshow(overlay(grads,
-                                     cv2.convertScaleAbs(display_image)))
-            plot_index += 1
-
-        matplotlib.pyplot.tight_layout()
-        figure_name = samples["image_names"][i].replace("/", "_")
-        matplotlib.pyplot.savefig(
-            os.path.join(output_folder, figure_name))
-        matplotlib.pyplot.close('all')
 
 
 def create_merged_angles_and_heat_maps(merged_dir, heat_map_dir, angle_dir,
