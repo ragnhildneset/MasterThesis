@@ -102,11 +102,15 @@ class PredictionHistogram():
         x_val, y_true = self.valid["images"], self.valid["steers"]
         y_pred = self.model.predict(x_val)
         plt.figure(2)
-        f, axarr = plt.subplots(2, 1)
-        axarr[0].set_title('Predicted angles')
-        axarr[0].hist(y_pred)
-        axarr[1].set_title('True angles')
-        axarr[1].hist(y_true, color=current_palette[1])
+
+        ax1 = plt.subplot(211)
+        ax1.set_title('Predicted angles')
+        ax1.hist(y_pred, bins=40, color=current_palette[0])
+
+        ax2 = plt.subplot(212, sharex=ax1, sharey=ax1)
+        ax2.set_title('True angles')
+        ax2.hist(y_true, bins=40, color=current_palette[1])
+
         plt.tight_layout()
         utilities.make_folder(self.output_folder)
         plt.savefig(os.path.join(self.output_folder, self.model_name))
