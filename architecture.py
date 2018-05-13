@@ -1,5 +1,6 @@
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Conv2D, Dropout
+from keras import optimizers
 import data_processing
 
 
@@ -57,6 +58,7 @@ class Bojarski_Model_Dropout(Model):
     def get_model(self):
         DROPOUT_RATE = 0.35
         model = Sequential()
+        optimizer = optimizers.Adam(lr=0.0003)
         model.add(Conv2D(24, (5, 5), strides=(2, 2), activation="relu",
                          input_shape=self.INPUT_SHAPE))
         model.add(Conv2D(36, (5, 5), strides=(2, 2), activation="relu"))
@@ -76,7 +78,7 @@ class Bojarski_Model_Dropout(Model):
         model.add(Dense(10, activation="relu"))
         model.add(Dropout(rate=DROPOUT_RATE))
         model.add(Dense(self.NOF_OUTPUTS))
-        model.compile(optimizer="adam", loss="mse", metrics=['accuracy', 'mae'])
+        model.compile(optimizer=optimizer, loss="mse", metrics=['accuracy', 'mae'])
         return model
 
 
