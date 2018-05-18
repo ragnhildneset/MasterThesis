@@ -32,7 +32,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a neural network to autonomously drive a virtual car. Example syntax:\n\npython model.py -d udacity_dataset -m model.h5')
     parser.add_argument('--dataset-directory', '-d', dest='dataset_directory', type=str, required=True, help='Required string: Directory containing driving log and images.')
     parser.add_argument('--model-name', '-m', dest='model_name', type=str, required=True, help='Required string: Name of model e.g model.h5.')
-    parser.add_argument('--architecture', '-a', dest='architecture', type=str, required=False, default="Bojarski", help='Nameg of the architecture to be used.')
+    parser.add_argument('--architecture', '-a', dest='architecture', type=str, required=False, default="Bojarski_Dropout", help='Nameg of the architecture to be used.')
     parser.add_argument('--augmentation', '-au', dest='augmentation', type=bool, required=False, default=True, help='Use augmentation on training set.')
     parser.add_argument('--gpu-batch-size', '-g', dest='gpu_batch_size', type=int, required=False, default=64, help='Optional integer: Image batch size that fits in VRAM. Default 512.')
     parser.add_argument('--visualization-size', '-vs', dest='vis_size', type=int, required=False, default=50, help='The number of images to be selected for visualisation.')
