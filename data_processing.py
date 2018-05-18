@@ -9,13 +9,13 @@ def batch_generator(samples, dataset_path, batch_size, img_size, spatial_hist_in
                     include_angles=True, include_speed=True, nof_outputs=2,
                     augmentation=False):
 
-    images = np.zeros((batch_size, img_size[0], img_size[1]*2, 3))
+    images = np.zeros((batch_size, img_size[0], img_size[1]*3, 3))
     steers = np.zeros((batch_size, nof_outputs))
 
     while True:
         i = 0
         for index in np.random.permutation(samples.shape[0]):
-            if index - spatial_hist_interval < 0:
+            if index - spatial_hist_interval*2 < 0:
                 continue
 
             speed = samples.iloc[index, 0]
@@ -23,17 +23,24 @@ def batch_generator(samples, dataset_path, batch_size, img_size, spatial_hist_in
 
             image_path = samples.iloc[index, 2]
             hist_image_path = samples.iloc[index - spatial_hist_interval, 2]
+            hist_image_path_oldest = samples.iloc[index -
+                                                  spatial_hist_interval * 2,
+                                                  2]
             image = utilities.load_image(dataset_path, image_path)
             hist_image = utilities.load_image(dataset_path, hist_image_path)
-
+            hist_image_oldest = utilities.load_image(dataset_path,
+                                                     hist_image_path_oldest)
             if augmentation:
                 image = random_hsv_adjustment(image)
                 hist_image = random_hsv_adjustment(hist_image)
+                hist_image_oldest = random_hsv_adjustment(hist_image_oldest)
 
             image = preprocess(image, img_size)
             hist_image = preprocess(hist_image, img_size)
+            hist_image_oldest = preprocess(hist_image_oldest, img_size)
 
-            images[i] = np.concatenate((image, hist_image), axis=1)
+            images[i] = np.concatenate((image, hist_image, hist_image_oldest),
+                                       axis=1)
             steers[i] = [angle, speed] if (include_angles and include_speed) \
                 else ([speed] if include_speed else [angle])
 
@@ -46,7 +53,7 @@ def batch_generator(samples, dataset_path, batch_size, img_size, spatial_hist_in
 def random_batch(samples, dataset_path, batch_size, img_size, spatial_hist_interval,
                  random_seed=None, include_angles=True, include_speed=True,
                  nof_outputs=2):
-    images = np.zeros((batch_size, img_size[0], img_size[1]*2, 3))
+    images = np.zeros((batch_size, img_size[0], img_size[1]*3, 3))
     steers = np.zeros((batch_size, nof_outputs))
     image_names = []
 
@@ -57,13 +64,21 @@ def random_batch(samples, dataset_path, batch_size, img_size, spatial_hist_inter
 
         image_name = samples.iloc[index, 2]
         hist_image_name = samples.iloc[index - spatial_hist_interval, 2]
+        hist_image_path_oldest = samples.iloc[index -
+                                              spatial_hist_interval * 2,
+                                              2]
 
         image = utilities.load_image(dataset_path, image_name)
         hist_image = utilities.load_image(dataset_path, hist_image_name)
+        hist_image_oldest = utilities.load_image(dataset_path,
+                                                 hist_image_path_oldest)
 
         image = preprocess(image, img_size)
         hist_image = preprocess(hist_image, img_size)
-        images[i] = np.concatenate((image, hist_image), axis=1)
+        hist_image_oldest = preprocess(hist_image_oldest, img_size)
+
+        images[i] = np.concatenate((image, hist_image,
+                                    hist_image_oldest), axis=1)
 
         steers[i] = [angle, speed] if (include_angles and include_speed) \
             else ([speed] if include_speed else [angle])
@@ -192,5 +207,3 @@ def upsample_large_angles(samples):
     samples_large = samples[is_large_angle]
 
     return samples.append([samples_large]*5)
-
-

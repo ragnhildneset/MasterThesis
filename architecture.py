@@ -6,12 +6,12 @@ import data_processing
 
 class Model:
     def __init__(self, include_angles=True, include_speed=True,
-                 img_size=(66, 200), spatial_hist_inteval=130):
+                 img_size=(66, 200), spatial_hist_inteval=60):
         self.ANGLES = include_angles
         self.SPEED = include_speed
         self.NOF_OUTPUTS = 2 if (self.SPEED and self.ANGLES) else 1
         self.IMG_SIZE = img_size
-        self.INPUT_SHAPE = (self.IMG_SIZE[0], self.IMG_SIZE[1]*2, 3)
+        self.INPUT_SHAPE = (self.IMG_SIZE[0], self.IMG_SIZE[1]*3, 3)
         self.SPATIAL_HIST_INTERVAL = spatial_hist_inteval
 
     def get_batch_generator(self, data, dataset_path, batch_size,
