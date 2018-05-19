@@ -6,7 +6,7 @@ import data_processing
 
 class Model:
     def __init__(self, include_angles=True, include_speed=True,
-                 img_size=(66, 200), spatial_hist_inteval=60):
+                 img_size=(66, 200), spatial_hist_inteval=80):
         self.ANGLES = include_angles
         self.SPEED = include_speed
         self.NOF_OUTPUTS = 2 if (self.SPEED and self.ANGLES) else 1

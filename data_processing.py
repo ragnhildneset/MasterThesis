@@ -203,7 +203,7 @@ def random_translations(image, angle, min_x=-30, max_x=30, angle_scale=0.0064):
 
 
 def upsample_large_angles(samples):
-    is_large_angle = samples['angle'].abs() > 0.5
+    is_large_angle = samples['angle'] < 0.1
     samples_large = samples[is_large_angle]
 
     return samples.append([samples_large]*5)
