@@ -76,6 +76,7 @@ def make_and_save_visualbackprop_masks(model, samples, output_folder):
         vmax = np.percentile(mask, 99)
 
         display_image = data_processing.un_normalize_color(image)
+        display_image = cv2.cvtColor(display_image, cv2.COLOR_BGR2RGB)
 
         # Regular image
         axarr[0].axis('off')
