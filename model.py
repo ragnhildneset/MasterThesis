@@ -45,8 +45,8 @@ if __name__ == "__main__":
     train, valid = utilities.get_dataset_from_folder(dataset_path,
                                                      args.test_set_name)
 
-    if args.augmentation:
-        train = data_processing.upsample_large_angles(train)
+#    if args.augmentation:
+#        train = data_processing.upsample_large_angles(train)
 
     base_model = architecture.get_model(args.architecture,
                                         include_speed=False)
