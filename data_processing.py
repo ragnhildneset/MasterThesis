@@ -145,8 +145,9 @@ def erasing_spots(img, sl=0.02, sh=0.4, r1=0.3):
 
 
 def reduce_resolution_and_crop_top(image, height, width):
-    cropped_top_offset = int(image.shape[0] - (image.shape[0] * 0.65))
-    cropped = image[cropped_top_offset:cropped_top_offset + image.shape[0],
+    cropped_top_offset = int(image.shape[0] - (image.shape[0] * 0.80))
+    cropped_end_offset = int(image.shape[0] - (image.shape[0] * 0.15))
+    cropped = image[cropped_top_offset:cropped_end_offset,
                     0:image.shape[1]]
     return reduce_resolution(cropped, height, width)
 
