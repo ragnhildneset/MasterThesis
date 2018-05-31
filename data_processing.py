@@ -96,9 +96,9 @@ def reduce_resolution(image, height, width):
 
 def use_side_cameras(left, right, angle):
     if np.random.rand() < 0.6:
-        rot_angle = angle + 0.25
+        rot_angle = angle + 0.26
         return left, rot_angle
-    rot_angle = angle - 0.25
+    rot_angle = angle - 0.26
     return right, rot_angle
 
 
@@ -182,7 +182,7 @@ def brightness_spots(img, sl=0.02, sh=0.4, r1=0.3):
     return img
 
 
-def random_translations(image, angle, min_x=-30, max_x=30, angle_scale=0.0064):
+def random_translations(image, angle, min_x=-40, max_x=40, angle_scale=0.0065):
     tr_x = np.random.randint(min_x, max_x)
     tr_angle = angle + tr_x * angle_scale
     tr_angle = min(1, max(-1, tr_angle))

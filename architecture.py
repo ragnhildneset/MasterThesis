@@ -62,7 +62,6 @@ class Bojarski_Model_Dropout(Model):
 
         adam = optimizers.adam(lr=self.LEARNING_RATE, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
         model = Sequential()
-        optimizer = optimizers.Adam(lr=0.0003)
         model.add(Conv2D(24, (5, 5), strides=(2, 2), activation="relu",
                          input_shape=self.INPUT_SHAPE))
         model.add(Conv2D(36, (5, 5), strides=(2, 2), activation="relu"))

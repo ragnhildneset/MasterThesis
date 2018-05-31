@@ -8,6 +8,7 @@ import visualisation
 import metrics
 import data_processing
 
+from keras.models import load_model
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
 
 MODEL_DIR = "output/models"
@@ -53,8 +54,8 @@ if __name__ == "__main__":
                                         args.learning_rate,
                                         include_speed=False)
 
-    model = base_model.get_model()
-
+    #model = base_model.get_model()
+    model = load_model("output/models/CATbojarskiAdamLR0003.h5")
     # Callbacks
     tensorboard = TensorBoard(log_dir=os.path.join(TENSORBOARD_DIR,
                               args.model_name),
@@ -69,7 +70,7 @@ if __name__ == "__main__":
                                  mode='auto', period=3)
 
     earlyStopping = EarlyStopping(monitor='val_loss',
-                                  min_delta=0, patience=12, verbose=0,
+                                  min_delta=0, patience=7, verbose=0,
                                   mode='auto')
 
     valid_processed = base_model.get_random_batch(valid, dataset_path,
