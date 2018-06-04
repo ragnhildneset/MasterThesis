@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Courtesy of Revolve NTNU http://www.revolve.no/
+
 import os
 import errno
 import time
